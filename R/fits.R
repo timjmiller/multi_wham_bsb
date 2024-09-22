@@ -90,6 +90,8 @@ fits <- lapply(fits, do_reference_points)
 fits <- lapply(fits, do_sdreport)
 fits <- lapply(fits, make_osa_residuals)
 saveRDS(fits, here("results", paste0("fits_no_M_re.RDS")))
+parLists_fits <- sapply(fits, function(x) x$parList)
+saveRDS(parLists_fits, here::here("results", paste0("parLists_no_M_re.RDS")))
 
 input_M_re_0 <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov, catch_info = catch_info,
 	index_info = index_info, age_comp = age_comp, M = M_list)
