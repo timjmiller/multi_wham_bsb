@@ -36,7 +36,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={A multi-stock, multi-region state-space age-structured assessment model with an application to black sea bass},
+  pdftitle={Space for WHAM: a multi-region, multi-stock generalization of the Woods Hole Assessment Model with an application to black sea bass},
   pdfauthor={Timothy J. Miller1; Kierstin Curti; Alex Hansell},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
@@ -130,11 +130,11 @@
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
-\title{A multi-stock, multi-region state-space age-structured assessment
-model with an application to black sea bass}
+\title{Space for WHAM: a multi-region, multi-stock generalization of the
+Woods Hole Assessment Model with an application to black sea bass}
 \author{Timothy J. Miller\textsuperscript{1} \and Kierstin
 Curti \and Alex Hansell}
-\date{16 September, 2024}
+\date{14 November, 2024}
 
 \begin{document}
 \maketitle
@@ -149,9 +149,9 @@ Northeast Fisheries Science Center, National Marine Fisheries Service,
 \subsection*{Main Message}\label{main-message}}
 \addcontentsline{toc}{subsection}{Main Message}
 
-A multi-region, multi-stock generalization of WHAM with an application
-evaluating evidence of alternative hypotheses about temperature effects
-on black sea bass
+Describes the multi-region, multi-stock generalization of WHAM and its
+usage to evaluate evidence of alternative hypotheses about temperature
+effects on recruitment of black sea bass stock components.
 
 \hypertarget{abstract}{%
 \subsection*{Abstract}\label{abstract}}
@@ -163,12 +163,13 @@ Northeast US. We first describe a multi-stock, multi-region extension of
 WHAM that treats the population and fleet dynamics seasonally and allows
 movement by season and region to be functions of time- and age-varying
 autocorrelated random effects and environmental covariates. We then
-illustrate the model with northern and southern components of the NEUS
-black sea bass stock and evaluate alternative hypotheses of bottom
-temperature and random effects on recruitment and natural mortality. We
-show strong evidence for temperature effects on recruitment and no
-random effects or temperature effects on natural mortality, primarily
-for the northern stock component.
+illustrate the model by applying it to data for the northern and
+southern components of the NEUS black sea bass stock and evaluate
+alternative hypotheses of bottom temperature and random effects on
+recruitment and natural mortality. We show strong evidence for
+temperature effects on recruitment, primarily for the northern stock
+component, and no evidence for including random effects or temperature
+effects on age 1 natural mortality.
 
 \pagebreak
 
@@ -176,78 +177,72 @@ for the northern stock component.
 \section*{Introduction}\label{introduction}}
 \addcontentsline{toc}{section}{Introduction}
 
-Why is this model needed. Models ignoring movement can provide biased
-catch advice. Using random effects for time-varying processes is
-considered best practice.
+A state-space statistical approach and maximum marginal likelihood or
+Bayesian fitting of stock assessment models allows estimation of time-
+and age-varying population attributes as random effects Miller et al.
+(2016b). This estimation approach is considered an essential feature of
+gold-standard assessment models that we use in tactical management of
+commercially important fish stocks (Punt et al. 2020). The State-space
+Assessment Model (SAM, Nielsen and Berg 2014) continues to be developed
+and remains widely used within ICES to assess European fish stocks.
+Various state-space models are being used to manage cod and plaice
+stocks in the waters of Eastern Canada (Perreault et al. 2020; Varkey et
+al. 2022) and to the south, the Woods Hole Assessment Model (WHAM, Stock
+and Miller 2021) is now used to assess many fish stocks in the Northwest
+Atlantic Ocean (NEFSC 2022a, 2022b; NEFSC 2024).
 
-The Woods Hole Assessment Model (WHAM) is an R package developed at the
-Northeast Fisheries Science Center
-(\url{https://timjmiller.github.io/wham}, Miller and Stock 2020; Stock
-and Miller 2021). Primary inputs and observation types are similar to
-ASAP and there is functionality built into WHAM to move information from
-ASAP input files to R. WHAM can be configured to fit SCAA models often
-identically to ASAP, so that existing assessments in the U.S. Northeast
-can be replicated and tested against state-space models with process
-errors and environmental effects in a single framework. WHAM models are
-built using the Template Model Builder package (TMB, Kristensen et al.
-2016) which provides efficient fitting of models that include random
-effects similar to the State-space Assessment Model (SAM, Nielsen and
-Berg 2014), which is used to manage many stocks within ICES. WHAM is
-currently used to manage 9 stocks in the NEUS.
+WHAM is an R package developed and maintained at NOAA's Northeast
+Fisheries Science Center (\url{https://timjmiller.github.io/wham},
+Miller and Stock 2020; Stock and Miller 2021). WHAM can be configured to
+fit a wide range of age-structured models from traditional statistical
+catch-at-age models without any random effects to models with several
+time and age varying process errors and possibly effects of
+environmental covariates on various demographic parameters. Like SAM,
+WHAM models are built using the Template Model Builder package (TMB,
+Kristensen et al. 2016) which provides a computationally efficient means
+of fitting an extremely wide class of models with random effects. WHAM
+has undergone active development since its creation and includes random
+effects options for in recruitment, inter-annual transitions numbers at
+age (hereafter referred to as ``survival''), fishery and index
+selectivity, natural mortality, and catchability.
 
-The Woods Hole Assessment Model (WHAM) software package is maintained
-and developed at the Northeast Fisheries Science Center to enable
-state-space stock assessments, i.e.~where processes such as the annual
-transitions in numbers-at-age (survival), natural mortality,
-selectivity, and catchability are treated as time- and(or) age-varying
-random effects. WHAM can also be configured without random effects as a
-traditional statistical catch-at-age model in order to bridge from
-current assessments which use Age-Structured Assessment Program (ASAP).
-Here, we present an extension of WHAM (Multi-WHAM) to model multiple
-stocks and(or) regions and allow movement of stocks among regions.
+However, WHAM has up to now only allowed models with one stock
+(component) and a single region and without seasonal changes in stock
+dynamics. Using such models for stocks that have subcomponents with
+varying seasonal movement can provide incorrect inferences and poor
+management advice (Ying et al. 2011; Cao et al. 2014; Bosley et al.
+2022). Furthermore, the ability to account for spatial structure and
+model multiple stocks are also important features of leading-edge
+assessment modeling frameworks (Punt et al. 2020). We describe here the
+implementation of these features and other extensions since Stock and
+Miller (2021) in WHAM version 2.0. Many of these new configuration
+options can be useful whether modeling 1 or more stocks and regions.
 
-It has been reviewed in the literature and simulation tested (Stock et
-al. 2021; Stock and Miller 2021). It has also been used as the operating
-model in the index-based assessment methods research track assessment
-(Legault et al. 2023) and is also the main tool for simulation studies
-in the research track on state-space assessment models.
-
-A review of the essential features for next-generation stock assessments
-concluded that only WHAM and a similar State-Space Assessment Method
-(Nielsen and Berg 2014) model random effects correctly (Punt et
-al.~2020). WHAM is now being used as the management model for 9 stocks
-in the northeast U.S., but the standard version of WHAM can only be
-applied to a single stock and area (Miller and Stock 2020).
-
-Here, we describe a multi-stock and multi-region extension of the WHAM
-package (version 2.0 \url{https://github.com/timjmiller/wham/tree/lab}).
-Numerous new configuration options are also included in this extension
-that can be useful even for single-stock or single region models. Any
-number of stocks or regions can be configured in this version of WHAM.
-The multi-stock extension was developed to accommodate movement of
-stocks or stock components in anticipation of black sea bass and
-Atlantic cod stocks where new modeling frameworks where recently
-examined through Northeast research track assessment process (cite RT
-docs). We demonstrate capabilities of the new version of WHAM with black
-sea bass and evaluate evidence for alternative hypotheses of temporal
-variation in natural mortality and effects of bottom temperature on
-recruitment and natural mortality of age 1 individuals.
+This extension of WHAM was developed in concert with a stock assessment
+for black sea bass through the NEFSC research track assessment process
+where new modeling frameworks were recently examined and modeling
+multiple stocks or stock components simultaneously was of interest
+(NEFSC 2023). \textcolor{red}{[Text on black sea bass here]} We apply
+WHAM 2.0 to two stock components of black sea bass off the coast of the
+NEUS and evaluate evidence for alternative hypotheses of temporal
+variation and effects specifically of bottom temperature on recruitment
+and natural mortality of age 1 individuals.
 
 \hypertarget{methods}{%
 \section*{Methods}\label{methods}}
 \addcontentsline{toc}{section}{Methods}
 
-\hypertarget{model-description}{%
-\subsection*{Model description}\label{model-description}}
-\addcontentsline{toc}{subsection}{Model description}
+\hypertarget{wham-description}{%
+\subsection*{WHAM description}\label{wham-description}}
+\addcontentsline{toc}{subsection}{WHAM description}
 
-Many of the options and equations of version 2.0 are are the same as
-those described by Stock and Miller (2021), so we will only describe
-extensions and differences that have occurred since the first
-description of WHAM. The new version of WHAM can model multiple stocks,
-but survival, movement, harvest and natural mortality is are tracked for
-each stock. Therefore, much of the description below assumes a specific
-stock \(s\), but this subscript is only explicitly used when necessary.
+Many of the options and equations of WHAM version 2.0 are the same as
+those in Stock and Miller (2021), so we will only describe extensions
+and differences that have occurred since their first description of
+WHAM. The new version of WHAM can model multiple stocks and survival,
+movement, harvest and natural mortality are tracked for each stock. Much
+of the description below is for a specific stock \(s\), but, for
+simplicity, this subscript is implicit except when necessary.
 
 \hypertarget{the-probability-transition-matrix}{%
 \subsubsection*{The probability transition
@@ -257,17 +252,25 @@ matrix}\label{the-probability-transition-matrix}}
 Because individuals may be alive in one of several regions or harvested
 in one of several fleets, it is helpful to consider these as distinct
 categories or states and treat the number of individuals occurring in
-each category over time as a multi-state model (reference). Multi-state
-models use a probability transition matrix (PTM) that describes the
-probability of individuals living and moving among regions or dying due
-to fishing or natural mortality over a time interval \(i\) with duration
-\(\delta_i\) in year \(y\) for individuals at age \(a\) on January 1.
-Each row and column of the PTM correspond to one the states: alive in
-region \(r\), dead in fleet \(f\), or dead from natural causes. The
-probabilities in each row sum to unity and assume an individual is in
-the corresponding state at the beginning of the interval. Given \(n_R\)
-regions and \(n_F\) fleets, the square PTM (\(n_R + n_F + 1\) rows and
-columns) as a function of sub-matrices is \begin{equation}\label{eq:ptm}
+each category over time as a multi-state model. Approaches to modeling
+transitions among these tates may treat time discretely (e.g., Arnason
+1972; Schwarz et al. 1993) or continuously (e.g., Hearn et al. 1987;
+Commenges 1999; Andersen and Keiding 2002). Multi-state models can
+define a probability transition matrix (PTM) that describes the
+probability of individuals occurring in different states at the end of a
+time interval \(\delta\), conditional on being in each of those state at
+beginning of the interval. For fish populations these states would be
+defined as being alive in a particular region or being dead due to
+fishing from a particular fleet or natural mortality. The time interval
+\(i\) with duration \(\delta_i\) would be a season and the PTMs would be
+uniquely defined for each stock by season \(i\), year \(y\), and age
+\(a\) on January 1. Each row and column of the PTM correspond to one the
+states: alive in region \(r\), dead in fleet \(f\), or dead from natural
+causes. The probabilities in each row sum to unity and assume an
+individual is in the corresponding state at the beginning of the
+interval. Given \(n_R\) regions and \(n_F\) fleets, the square PTM
+(\(n_R + n_F + 1\) rows and columns) as a function of sub-matrices is
+\begin{equation}\label{eq:ptm}
   \mathbf{P}_{y,a,i} = \begin{bmatrix}
     \mathbf{O}_{y,a,i} & \mathbf{H}_{y,a,i} & \mathbf{D}_{y,a,i} \\
     0 & \mathbf{I}_{H} & 0\\
@@ -295,15 +298,16 @@ dying due to natural mortality during the interval. We have the identity
 matrix \(\mathbf{I}_{H}\) for the states for capture by each fleet and a
 1 for the state for natural mortality because the probabilities of being
 in one of the mortality states given starting the interval in that state
-is unity.
+is unity (no zombies allowed).
 
 WHAM uses these PTMs to model abundance proportions in each state rather
 than true probabilities where numbers in each state would be multinomial
-distributed. The PTMs determine the expected numbers 1) in each state on
-January 1 of year \(t+1\) at age \(a+1\) given the abundances at age
-\(a\) on January 1 of year \(t\), 2) captured over the year in each
-fleet, 3) available to each index, and 4) alive at the time and in the
-region where spawning occurs.
+distributed as in a model for tagging data where fates of individual
+fish are assumed independent. The PTMs determine the expected numbers 1)
+in each state on January 1 of year \(t+1\) at age \(a+1\) given the
+abundances at age \(a\) on January 1 of year \(t\), 2) captured over the
+year in each fleet, 3) available to each index, and 4) alive at the time
+and in the region where spawning occurs.
 
 \hypertarget{single-region-ptms}{%
 \subsubsection*{Single region PTMs}\label{single-region-ptms}}
@@ -477,9 +481,15 @@ there is autocorrelation with age, WHAM now assumes this applies only to
 ages \(a>1\) by default so that recruitment random effects are
 independent of those for for the annual transitions of older age
 classes. So the general covariance structure for a given stock at ages
-\(a>1\) in region \(r\) is \begin{equation*}
-  Cov\left(\epsilon_{y,a,r},\epsilon_{y',a',r}\right) =   \frac{\rho_{N,\text{age},r}^{|a-a'|}\rho_{N,\text{year},r}^{|y-y'|}\sigma^2_{N,r}}{\left(1 -  \rho_{N,\text{age},r}^2\right)\left(1 - \rho_{N,\text{year},r}^2\right)}.
-\end{equation*}
+\(a>1\) in region \(r\) is that of a two-dimensional first-order
+autoregressive (2DAR1) process \begin{equation*}
+  Cov\left(\epsilon_{y,a,r},\epsilon_{y',a',r}\right) =   \frac{\rho_{N,\text{age},r}^{|a-a'|}\rho_{N,\text{year},r}^{|y-y'|}\sigma_{N,a,r}\sigma_{N,a',r}}{\left(1 -  \rho_{N,\text{age},r}^2\right)\left(1 - \rho_{N,\text{year},r}^2\right)} 
+\end{equation*} and that for age 1 is just AR1 across years
+\begin{equation*}
+  Cov\left(\epsilon_{y,1},\epsilon_{y',1}\right) =   \frac{\rho_{N,1,\text{year}}^{|y-y'|}\sigma^2_{N,1}}{1 - \rho_{N,1,\text{year}}^2}.
+\end{equation*} Since recruitment for a given stock currently only
+occurs in one region \(r_s\) there is only a single time-varying
+recruitment random effect for each stock.
 
 \hypertarget{initial-numbers-at-age}{%
 \subsubsection*{Initial numbers at age}\label{initial-numbers-at-age}}
@@ -514,10 +524,9 @@ stock \(s\) only occur in region \(r_s\) so, the equilibrium initial
 numbers at age \(a\) by region are
 \[\mathbf{N}_{O,1,a} = \widetilde{\mathbf{O}}_{a}' \mathbf{N}_{O,1,1}.\]
 
-The initial abundances at age can also be treated as independent or
-autocorrelated (with age) random effects. Defining the vector of initial
-abundance at age in region \(r\) as \(\mathbf{N}_{O,1,r}\), the general
-model is
+The initial abundances at age can also be treated as independent or as
+AR1 random effects. Defining the vector of initial abundance at age in
+region \(r\) as \(\mathbf{N}_{O,1,r}\), the general model is
 \[\log \mathbf{N}_{O,1,r} = \theta_{N_1,r} + \boldsymbol{\varepsilon}_{N_1,r}\]
 where
 \[  Cov\left(\varepsilon_{N_1,a,r},\varepsilon_{N_1,a',r}\right) = \frac{\rho_{N_1,r}^{|a-a'|}\sigma^2_{N_1,r}} {\left(1-\rho_{N_1,r}^2\right)}.\]
@@ -540,8 +549,8 @@ and environmental effects: \begin{equation*}
   g(\mu_{r\rightarrow r',y,a,i}) = \theta_{r\rightarrow r',i} + \epsilon_{r\rightarrow r',y,a,i} + \sum^{n_E}_{k=1} \beta_{r \rightarrow r',a,i,k} E_{k,y}.
 \end{equation*} The random effects \(\epsilon_{r\rightarrow r',y,a,i}\)
 are season-, and(or) region-to-region-specific and modeled most
-generally as a two-dimensional first-order autoregressive random effects
-with age and(or) year where the covariance is \begin{equation*}
+generally as 2DAR1 random effects with age and(or) year where the
+covariance is \begin{equation*}
   Cov\left(\epsilon_{r\rightarrow r',y,a,i},\epsilon_{r\rightarrow r',y',a',i}\right) =   \frac{\rho_{r\rightarrow r',\text{age},i}^{|a-a'|}\rho_{r\rightarrow r',\text{year},i}^{|y-y'|}\sigma^2_{r\rightarrow r',i}}{\left(1 -  \rho_{r\rightarrow r',\text{age},i}^2\right)\left(1 - \rho_{r\rightarrow r',\text{year},i}^2\right)}
 \end{equation*} similar to how WHAM models variation in survival,
 natural mortality, and selectivity. Effects of covariate \(E_k\) can be
@@ -569,16 +578,15 @@ as \begin{equation*}
 
 Natural mortality options have been expanded in WHAM. When not
 estimated, (mean) mortality rates may be stock-, region-, and
-age-specific. When random effects are used, the same autocorrelation
-structures with age and year as described by Stock and Miller (2021) can
-be configured for a given stock and region. Any environmental covariate
+age-specific. When random effects are used, the same 2DAR1 structure
+with age and year as described by Stock and Miller (2021) can be
+configured for a given stock and region. Any environmental covariate
 effects can be stock-, region-, and age-specific. So the general model
 for natural mortality is \begin{equation*}
   \log M_{y,a,r} = \theta_{M,r} + \epsilon_{M,r,y,a} + \sum^{n_E}_{k=1} \beta_{M,r,a,k} E_{k,y}.
 \end{equation*} The general covariance structure for random effects are
-modeled most generally as a two-dimensional first-order autoregressive
-random effects with age and(or) year where the covariance is
-\begin{equation*}
+modeled most generally as 2DAR1 random effect with age and(or) year
+where the covariance is \begin{equation*}
   Cov\left(\epsilon_{M,y,a,r},\epsilon_{M,y',a',r}\right) =   \frac{\rho_{M,\text{age},r}^{|a-a'|}\rho_{M,\text{year},r}^{|y-y'|}\sigma^2_{M,r}}{\left(1 -  \rho_{M,\text{age},r}^2\right)\left(1 - \rho_{M,\text{year},r}^2\right)}.
 \end{equation*}
 
@@ -638,8 +646,7 @@ random effects and(or) environmental covariate effects
 \[log \frac{q_{m,y}-l_m}{u_m-q_{m,y}} = \theta_{q,m} + \varepsilon_{q,m,y}  + \sum^{n_E}_{k=1} \beta_{q,m,k} E_{k,y}\]
 where \(u_{m}\) and \(l_{m}\) are the upper and lower bounds of
 catchability for index \(m\) (defaults are 0 and 1000) and the general
-covariance structure for the annual random effects is first-order
-autoregressive
+covariance structure for the annual random effects is AR1
 \[Cov\left(\epsilon_{q,m,y},\epsilon_{q,m,y'}\right) =   \frac{\rho_{q,m}^{|y-y'|}\sigma^2_{q,m}}{1 - \rho_{q,m}^2}.\]
 
 \hypertarget{weight-and-maturity-at-age}{%
@@ -742,9 +749,9 @@ The projection options are generally the same as those for previous
 versions of WHAM. When there is movement of any stocks, the user has the
 option to project and use any random effects for time-varying movement
 or use the average over user specified years, analogous to how natural
-mortality can be treated in the projection period. The projections of
-any environmental covariates has been revised to better include error in
-the estimated latent covariate in any effects on the population in
+mortality can be treated in the projection period. The projection of any
+environmental covariates has been revised to better include error in the
+estimated latent covariate in any effects on the population in
 projection years.
 
 \hypertarget{application-to-black-sea-bass}{%
@@ -752,64 +759,66 @@ projection years.
 bass}\label{application-to-black-sea-bass}}
 \addcontentsline{toc}{section}{Application to black sea bass}
 
-Prior to the most recent peer-reviewed assessment of black sea bass in
-the NEUS, the stock was assessed using the Age-Structured Assessment
-Program (ASAP) model (Legault and Restrepo 1999), a single-stock and
--region statistical catch-at-age model that estimates all model
-parameters as fixed effects. Northern and southern components of the
-NEUS black sea bass stock divided by the Hudson Canyon were separately
-modeled in ASAP (reference map figure). Results from the separate ASAP
-models have been aggregated for a unit-stock assessment. Furthermore,
-the ASAP-based assessments have exhibited strong retrospective patterns
-(Mohn 1999), and exploring alternative modeling approaches for the
-northern and southern stock components has been a high priority for
-management.
+Prior to its 2023 peer-reviewed assessment, the NEUS black sea bass
+stock was assessed using the Age-Structured Assessment Program (ASAP)
+model (Legault and Restrepo 1999), a single-stock and -region
+statistical catch-at-age model that estimates all model parameters as
+fixed effects. Northern and southern components of the NEUS black sea
+bass stock ascribed to regions divided by the Hudson Canyon were
+separately modeled in ASAP (reference map figure). Results from the
+separate ASAP models were combined for a unit-stock assessment. The
+ASAP-based assessments exhibited strong retrospective patterns (Mohn
+1999), and exploring alternative modeling approaches for the northern
+and southern stock components has been a high priority for management.
 
-In 2023, a working group composed of scientists from federal, state, and
-academic institutions determined an optimal data and model configuration
-for the black sea bass stock using the multi-stock and multi-region
-extension of WHAM described above (NEFSC 2023). This assessment included
-the spatial features and hypothesized environmental drivers that were
-prioritized research recommendations from previous black sea bass
-assessments.
+Leading up to the 2023 peer-reviewed assessment, a working group
+(hereafter referred to as ``working group'') composed of scientists from
+federal, state, and academic institutions determined an optimal data and
+model configuration for the black sea bass stock using the multi-stock
+and multi-region extension of WHAM described above (NEFSC 2023). This
+assessment included the spatial features and investigated inclusion of
+hypothesized environmental drivers that were prioritized research
+recommendations from previous black sea bass assessments.
 
 Below we describe the assumptions and configuration of the assessment
 model as determined by the working group as well as the alternative
 assumptions for recruitment and natural mortality in the models we fit
-to evaluate alternative hypotheses of environmental effects.
+to evaluate alternative hypotheses of bottom temperature effects on
+black sea bass.
 
 \hypertarget{basic-structure}{%
 \subsection*{Basic structure}\label{basic-structure}}
 \addcontentsline{toc}{subsection}{Basic structure}
 
 The first year being modeled for the population is 1989 and the fishery
-and index data used in the model span from 1989 to 2021. There are two
-stock components (north and south) modeled as separate populations that
-spawn and recruit in respective regions separated by the Hudson Canyon.
-We have observations for each of four total fishing fleets, where two
-fishing fleets (Recreational and Commercial) operate in each region.
+and index data used in the model span from 1989 to 2021. The north and
+south stock components are modeled as separate populations that spawn
+and recruit in respective regions. We have observations for each of four
+total fishing fleets, where two fishing fleets (Recreational and
+Commercial) operate in each region.
 
 There are 11 seasonal intervals within each calendar year: five monthly
 time intervals from Jan 1 to May 31, a spawning season from June 1 to
 July 31, and five monthly intervals from August 1 to December 31. The
-southern stock component is assumed to never move to the northern region
-(Figure \ref{fig:migration-diagram}). For the northern component, a
-proportion \(\mu_1\) can move to the southern region each month during
-the last five months of the year, but no movement is allows from the
-south to the north during this period. During the first four intervals
-of the year a proportion \(\mu_2\) the northern component individuals in
-the south can move back to the north, but no movement from the north to
-south is allowed during this period. In the fifth interval (May), all
-northern component individuals remaining in the south are assumed to
-move back to the north for the subsequent spawning period. Survival and
-movement occur sequentially in each interval and each of the two
-movement proportions are assumed constant across intervals, ages, and
-years.
+southern stock component is assumed to never move to the northern
+region. For the northern component, a proportion
+\(\mu_{\text{N}\rightarrow \text{S}}\) can move to the southern region
+each month during the last five months of the year, but no movement is
+allows from the south to the north during this period (Figure
+\ref{fig:migration-diagram}). During the first four intervals of the
+year a proportion \(\mu_{\text{S}\rightarrow \text{N}}\) the northern
+component individuals in the south can move back to the north, but no
+movement from the north to south is allowed during this period. In the
+fifth interval (May), all northern component individuals remaining in
+the south are assumed to move back to the north for the subsequent
+spawning period. Survival and movement occur sequentially in each
+interval and each of the two movement proportions are assumed constant
+across intervals, ages, and years.
 
-The monthly movement matrices are \begin{equation*}
+The two monthly movement matrices are \begin{equation*}
 \boldsymbol{\mu}_{1} = 
   \begin{bmatrix}
-     1-\mu_{1\rightarrow 2} & \mu_{1\rightarrow 2} \\
+     1-\mu_{\text{N}\rightarrow \text{S}} & \mu_{\text{N}\rightarrow \text{S}} \\
      0 & 1 \\
   \end{bmatrix}
 \end{equation*} for the portion of the year after spawning and
@@ -817,35 +826,25 @@ The monthly movement matrices are \begin{equation*}
 \boldsymbol{\mu}_{2} = 
   \begin{bmatrix}
      1 &  0 \\
-     \mu_{2\rightarrow 1} & 1-\mu_{2\rightarrow 1} \\
+     \mu_{\text{S}\rightarrow \text{N}} & 1-\mu_{\text{S}\rightarrow \text{N}} \\
   \end{bmatrix}
-\end{equation*} for the portion of the year before spawning.
-
-The constant or mean log-natural mortality rate is assumed to be
-\(\log(0.4)\)
-
-As noted in the description of the general WHAM model, tagging data are
-not yet allowed. However, the working group also fit a Stock Synthesis
-model (Methot and Wetzel 2013) which provided estimated movement rate
+\end{equation*} for the portion of the year before spawning. As noted in
+the description of the general WHAM model, tagging data are not yet
+allowed. However, the working group also fit a Stock Synthesis model
+(Methot and Wetzel 2013) which provided estimated movement rate
 parameters and standard errors that were used to configure the priors
 for WHAM (see Supplementary Materials).
-
-\hypertarget{initial-abundance-at-age}{%
-\subsection*{Initial abundance at age}\label{initial-abundance-at-age}}
-\addcontentsline{toc}{subsection}{Initial abundance at age}
 
 With the movement configuration, the northern origin fish (ages 2+) can
 occur in the southern region on January 1. Estimating initial numbers at
 age as separate parameters can be challenging even in single-stock
-models. To avoid challenges with estimating initial numbers at age in
-each region for the northern component in the two stock model, we used
-the equilibrium assumption described above. Using this assumption two
-parameters are estimated for each stock component: an initial
-recruitment and an equilibrium fully-selected \(F\).
-
-\hypertarget{recruitment-and-survival}{%
-\subsection*{Recruitment and Survival}\label{recruitment-and-survival}}
-\addcontentsline{toc}{subsection}{Recruitment and Survival}
+models, but for black sea bass the available data cannot distinguish the
+proportion of northern and southern component fish at each age in the
+southern region in the initial year of the model. Therefore, we used the
+simplifying equilibrium assumption described above where there are two
+parameters estimated for each stock component: an initial recruitment
+and an equilibrium fully-selected \(F\) that determines the abundance at
+age in each region for each stock component.
 
 For the northern population abundance at age 1 on January 1
 (recruitment) is only allowed in the northern region, but given the
@@ -857,7 +856,7 @@ origin fish in each region. All of the initial runs assumed variance
 parameters for these random effects to be the same for northern origin
 fish occurring in both regions on January 1. The base model assumes very
 small variance for the transitions of northern fish in the southern
-region, which is essentially the same as the deterministic transition
+region, which is approximately the same as the deterministic transition
 assumptions of a statistical catch at age model. We also allow 2DAR1
 correlation for recruitment and survival for both the northern and
 southern components. Unique variance and correlation parameters for the
@@ -870,9 +869,10 @@ observations}\label{uncertainty-recreational-cpa-index-observations}}
 \addcontentsline{toc}{subsection}{Uncertainty recreational CPA index
 observations}
 
-The CVs provided by the analyses for the recreational catch per angler
-(RecCPA) ranged between 0.02 and 0.06 which the working group felt did
-not capture the true uncertainty in the index with regard to its
+The estimated coefficients of variation (CVs) provided by the analyses
+to generate the recreational catch per angler (recreational CPA) index
+ranged between 0.02 and 0.06 which the working group felt did not
+capture the true observation uncertainty in the index with regard to its
 relationship to stock abundance. In many of the initial runs as well as
 the base model we allowed a scalar multiple of the standard deviation of
 the log aggregate index to be estimated for these indices in the
@@ -891,7 +891,14 @@ observations}\label{index-and-catch-age-composition-observations}}
 \addcontentsline{toc}{subsection}{Index and Catch age composition
 observations}
 
-Table \ref{tab:age-comp-sel-table}
+The working group investigated many alternative assumptions for the
+probability models and selectivity models for the 8 different sets of
+age composition observations to reduce residual patterns and
+retrospective patterns. These analyses resulted in use of selectivity
+random effects for the northern fleet and indices and logistic-normal
+likelihoods for 6 sets of of age composition observations and
+Dirichlet-multinomial likelihoods for one index and one fleet in the
+northern region (Table \ref{tab:age-comp-sel-table}).
 
 \hypertarget{bottom-temperature-effects}{%
 \subsection*{Bottom Temperature
@@ -902,8 +909,8 @@ All model fits also include bottom temperature observations for the
 northern and southern regions from 1963 to 2021 and estimated standard
 errors ranging between 0.03 and 0.09 degrees Celsius (NEFSC 2023). We
 retained the assumption from the peer-reviewed assessment that treated
-the latent bottom temperature covariates in each region as first-order
-autoregressive processes.
+the latent bottom temperature covariates in each region as AR1
+processes.
 
 We fit 14 models with alternative assumptions about the effects of
 bottom temperature covariates, ranging from no effects to effects on
@@ -920,162 +927,361 @@ temperature on recruitment or natural mortality at age 1.
 
 It is standard practice to treat annual recruitment as time-varying
 deviations from a mean model and all models here treat recruitment
-deviations as first-order autoregressive random effects. However, Miller
-et al. (2018) showed how inferences of temperature effects on growth or
-maturity parameters can be very different whether the null model without
-the effect and models with effects also include random effects
-representing residual temporal variation in parameters. Therefore, we
-also explored whether including temporal random effects on age 1 natural
-mortality M affected inferences on corresponding temperature effects.
-Initially, we included random effects on age 1 natural mortality for
-both the northern and southern stock components, but estimates of these
-random effects and corresponding variance for the southern component
-converged to 0 so these were not included in models presented here.
+deviations as AR1 random effects. However, Miller et al. (2018) showed
+how inferences of temperature effects on growth or maturity parameters
+can be very different whether the compared models with and without the
+effect also include random effects representing residual temporal
+variation in parameters. Therefore, we also explored whether including
+temporal random effects on age 1 natural mortality affected inferences
+on corresponding temperature effects. Initially, we included random
+effects on age 1 natural mortality for both the northern and southern
+stock components, but estimates of these random effects and
+corresponding variance for the southern component converged to 0 so
+these were not included in models presented here.
 
 We assume the covariate in year \(y\) affects recruitment in the same
 years because the covariate observations are from months January to
 March. The fish are technically already 1 year old, but there are no
 observations of these individuals until later in the year except
 possibly in fishery catches which are accumulated over the whole year.
-Expected log-recruitment is a linear function of log-recruitment at the
-previous time step and bottom temperature
+Expected log-recruitment for a given stock is a linear function of
+bottom temperature
 
 \begin{equation}\label{eq:expected-recruitment}
-\log N_{s,r_s,y,1} = \mu_{R,s} + \beta_{R,s} x_y + \epsilon_{N,s,y,1}
-\end{equation}
+E\left(\log N_{y,1}|x_y\right) = \mu_{R} + \beta_{R} x_y.
+\end{equation} Similarly, expected log-natural morality as a function of
+bottom temperature is \begin{equation}\label{eq:expected-M1}
+E\left(\log M_{y,1}|x_y\right) = \mu_{M,1} + \beta_{M} x_y
+\end{equation} Because age 1 fish for the northern component can exist
+in both regions after January 1, natural mortality is acting in both
+regions for this stock. For models with covariate and/or annual random
+effects for age 1 fish we assume them only in the northern regions for
+the northern component. The corresponding random effects are
+\begin{equation}\label{eq:Rec-re}
+\log N_{y,1} = E\left(\log N_{y,1}|x_y\right) + \epsilon_{y,1}
+\end{equation} and \begin{equation}\label{eq:M-re}
+\log M_{y,1} = E\left(\log M_{y,1}|x_y\right) + \epsilon_{M,y}.
+\end{equation} The constant or mean log-natural mortality rate is
+assumed to be \(\mu_{M,a} = \log(0.4)\) for all ages as recommended by
+the working group. Because the bottom temperature anomalies and random
+effects are centered at 0, mean log-natural mortality at age 1 over the
+time series should be approximately equal to \(\mu_{M,1}\) for models
+that include those effects.
 
-\begin{equation}\label{eq:expected-M1}
-\log M_{s,y,1} = \mu_{M,s,1} + \beta_{M,s} x_y + \epsilon_{M,s,y}
-\end{equation}
-
-\hypertarget{model-fitting-diagnostics-and-comparisons}{%
+\hypertarget{model-fitting-diagnostics-and-projections}{%
 \subsection*{Model fitting, diagnostics, and
-comparisons}\label{model-fitting-diagnostics-and-comparisons}}
+projections}\label{model-fitting-diagnostics-and-projections}}
 \addcontentsline{toc}{subsection}{Model fitting, diagnostics, and
-comparisons}
+projections}
 
-As in Miller et al. (2016b), we also assessed the stability of the
+We used a development version
+(\href{https://github.com/timjmiller/wham/tree/fb8b089}{commit fb8b089})
+of the WHAM package prior to the release of version 2.0 for all results.
+All code for fitting models and generating results can be found at
+\href{https://github.com/timjmiller/wham_bsb_paper}{github.com/timjmiller/wham\_bsb\_paper}.
+
+We examined retrospective patterns for all models by fitting
+corresponding models where the terminal year is reduced sequentially by
+one year (peel) for seven years. Therefore, there are eight fits of each
+model with the time series reduced by zero to seven years. We calculated
+Mohn's \(\rho\) for SSB, and average \(F\) at ages 6 and 7. Absolute
+values of Mohn's \(\rho\) near 0 imply no pattern in estimation of these
+quantities as the time-series is sequentially extended.
+
+As in Miller et al. (2016b), we also assessed the consistency of the
 AIC-based model selection over retrospective peels to guard against
 previously noted changes in perception of covariate effects on
 recruitment with increased length of the time series of observations
 (Myers 1998). This retrospective examination was also recommended by
 Brooks (2024).
 
-We examined retrospective patterns by fitting models where the terminal
-year is reduced sequentially by one year (peel) for seven years.
-Therefore, there are 7 fits of the proposed base model with the time
-series reduced by one to seven years. We calculated Mohn's \(\rho\) for
-recruitment, SSB, and fully-selected \(F\). Absolute values of Mohn's
-\(\rho\) near 0 imply no pattern in estimation of these quantities as
-the time-series is sequentially extended.
+We performed a jitter analysis of the base model \(M_0\) and the best
+fitting model to investigate whether a local mimimum of the negative
+log-likelihood surface was obtained by the optimization. We used the
+jitter\_wham function in the WHAM package which by default simulates
+starting values from a multivariate normal distribution with mean and
+covariance defined by the MLEs and estimated covariance matrix from the
+fitted model. See the Supplementary Materials for more details.
 
-Specifically, we use version XX and commit XXX of the wham package
-(\url{https://github.com/timjmiller/wham/tree/lab}) for all results.
+For the best performing model, we also performed so-called simulation
+self-tests where new observations were simulated conditional on all
+estimated fixed and random effects and the same model configuration was
+fit to each of the simulated data sets. We estimated median relative
+bias of SSB across these simulations. See the Supplementary Materials
+for more details.
 
-We performed a simulation self-test where new observations were
-simulated conditional on all random effects estimated in the proposed
-base model and the same model configuration was fit to each of the
-simulated data sets.
-
-One-step-ahead residuals can now be calculated for all index, catch,
-environmental covariate observations using methods described by Thygesen
-et al. (2017) and Trijoulet et al. (2023).
-
-\hypertarget{one-step-ahead-residuals}{%
-\subsubsection*{One-step-ahead
-residuals}\label{one-step-ahead-residuals}}
-\addcontentsline{toc}{subsubsection}{One-step-ahead residuals}
-
-\hypertarget{retrospective-patterns}{%
-\subsubsection*{Retrospective patterns}\label{retrospective-patterns}}
-\addcontentsline{toc}{subsubsection}{Retrospective patterns}
+To illustrate projections with environmental effects we projected the
+best black sea bass model under three alternative scenarios where the
+AR1 time-series model for bottom temperature continues into the
+projection years, where we project with bottom temperature being the
+average of the most recent 5 years, and where bottom temperature
+increases following a predictions from a simple linear regression of the
+estimated bottom temperature anomalies over time.
 
 \hypertarget{results}{%
 \section*{Results}\label{results}}
 \addcontentsline{toc}{section}{Results}
 
-Although there was strong retrospective patterns in the most recent
-management track assessment for the northern component of the stock,
-there was no evidence of patterns for northern SSB (Mohn's \(\rho\) =
--0.058) and \(F\) (Mohn's \(\rho\) = 0.06) for the proposed base model
-(Figures \ref{fig:North-retro-ssb} and \ref{fig:North-retro-F}).
-Similarly, no patterns were exhibited for the southern component of SSB
-(Mohn's \(\rho\) = -0.019) and regional \(F\) (Mohn's \(\rho\) = -0.05)
-(Figures \ref{fig:South-retro-ssb} and \ref{fig:South-retro-F}).
-
-For 7 of the the simulated data sets the model failed to optimize. The
-maximum absolute gradient was \(<10^{-6}\) for only 9 and \(<10^{-4}\)
-for 52 of the 93 successfully fitted models. The poor convergence
-appeared to be attributable to the estimation of the scalar for the
-standard errors of the log-transformed northern Recreational CPA index
-for which estimates tended to 0 for nearly all of the fits (\(<0.01\)
-for 83 fits). However, even across all fits including those with poor
-convergence, the SSB estimates appeared to be reliable (Figure
-\ref{fig:self-test-res-1}).
-
-\hypertarget{bottom-temperature-effect-on-recruitment}{%
-\subsection*{Bottom temperature effect on
-recruitment}\label{bottom-temperature-effect-on-recruitment}}
-\addcontentsline{toc}{subsection}{Bottom temperature effect on
-recruitment}
-
 We found the best model of bottom temperature covariate effects included
-the effect only on the recruitment of the northern stock, which is the
-configuration in the proposed base model although the difference in AIC
-for the model including effects on both regional components was small
-suggesting some evidence for this hypothesis as well (Table
-\ref{tab:compare-table}) . We also found AIC to strongly favor models
-that included at least an effect on the northern component across all
-retrospective peels (Table \ref{tab:peel-compare-table}). The posterior
-estimate of the bottom temperature covariate match the observations well
-because of the high precision of the observations (Figure
-\ref{fig:bottom-temp}). The residual variation in the standard deviation
-of recruitment random effects is reduced because the expected
-recruitment (Eq. \ref{eq:expected-recruitment}) is a function of the
-covariate (Figure \ref{fig:relative-recruitment-bt}). This effect is
-included in the proposed base model (Figure \ref{fig:rec-bottom-temp}).
-Because the covariate is technically for temperature after the beginning
-of the calendar year when the fish are considered age 1 in the model, a
-comparison of the proposed base model to one with the bottom temperature
-effect on natural mortality at age 1 instead might be of interest in the
-future. An investigation of higher order orthogonal polynomial effects
-might also be of interest particularly for the southern component which
-might be experiencing more frequently higher temperatures less favorable
-to overwinter survival.
+the effect only on the recruitment of the northern stock (Table
+\ref{tab:diff-aic-table}). However, the difference in AIC for the model
+that also included effects on recruitment for the southern component
+suggested some evidence for this hypothesis as well (Table
+\ref{tab:aic-wts-table}).
+
+Across retrospective peels where the terminal year of data was
+sequentially reduced, the ranking for the best model was consistent.
+However, when the terminal year was reduced 6 or more years, there was
+more evidence for further effects of temperature on recruitment for the
+southern component and for temporal variation in natural mortality at
+age 1 (Table \ref{tab:aic-wts-table}).
+
+The retrospective model fits did not indicate any evidence of patterns
+for northern or southern component SSB (all Mohn's
+\(\rho \approx -0.03\)) or fishing mortality (all Mohn's
+\(\rho \approx 0.03\) and \(-0.04\) for average \(F\) at ages 6 and 7 in
+north and south regions, respectively) for any of the models (Table
+\ref{tab:rho-table}).
+
+\hypertarget{bottom-temperature-effects-1}{%
+\subsection*{Bottom temperature
+effects}\label{bottom-temperature-effects-1}}
+\addcontentsline{toc}{subsection}{Bottom temperature effects}
+
+The posterior estimate of the bottom temperature covariate match the
+observations well because of the high precision of the observations and
+anomalies in the north and south region appear highly correlated (Figure
+\ref{fig:bottom-temperature}). Because the temperature anomalies are
+treated as latent variables, when effects on recruitment are included,
+other data components in the model can affect the estimated anomalies
+(e.g., Miller et al. 2018), but in this case the estimates are altered
+negligibly during the years where recruitment is estimated (Figure
+\ref{fig:Ecov-M1-rel-M0}).
+
+Estimated effects of bottom temperature on recruitment for either the
+northern or southern component were stable over the retrospective peels
+and differed negligibly whether effects for each component were
+estimated in isolation or together (Table
+\ref{tab:beta-sig-peel-table}). Estimates of residual variability in
+northern component recruitment, as measured by the conditional or
+marginal standard deviation of the recruitment random effects, increased
+slightly with the number of peeled years. However, the ratio of standard
+deviations of models with and without temperature effects was stable
+with about a 20\% reduction in residual standard deviation when
+temperature effects were included.
+
+Although evidence for temperature effects on age 1 natural mortality was
+weak, it is notable that the sign of the estimated effect for the
+northern stock component differed depending on whether random effects on
+age 1 natural mortality were also included (\(\widehat \beta_R = -1\)
+for \(M_{6}\) or \(M_{13}\)) with the negative effect estimated with
+these random effects (\(M_{13}\)).
+
+\hypertarget{stock-size-fishing}{%
+\subsection*{Stock size, fishing}\label{stock-size-fishing}}
+\addcontentsline{toc}{subsection}{Stock size, fishing}
+
+For the best performing model \(M_1\), estimates of SSB Stock size is
+also increasing for the southern component, just not as quickly as the
+northern component. (plot of SSB time series for each component).
+
+Figure \ref{fig:M1-SSB-F-R}
+
+Figure \ref{fig:SSB-F-R-rel-M1} Annual estimates of SSB and F varied
+little among the 14 fitted models.
+
+plot of prior/posterior for movement rate.
+
+plot of average F by fleet,region.
+
+Sectivity random effects (Figure \ref{fig:selectivity-re})
+
+Estimates of effect size, sd, correlation for each peel (Table \ref{}
+
+The residual variation in the standard deviation of recruitment random
+effects is reduced because the expected recruitment (Eq.
+\ref{eq:expected-recruitment}) is a function of the covariate. This
+effect is included in the proposed base model (Figure
+\ref{fig:BT-Ecov-R}).
+
+plot of northern component predicted recruitment vs.~time with color by
+bottom temperature
+
+\hypertarget{reference-points-1}{%
+\subsection*{Reference points}\label{reference-points-1}}
+\addcontentsline{toc}{subsection}{Reference points}
+
+\hypertarget{projections-1}{%
+\subsection*{Projections}\label{projections-1}}
+\addcontentsline{toc}{subsection}{Projections}
+
+Projections of bottom temperature and recruitment and CVs (Figure
+\ref{fig:R-BT-proj})
+
+Uncertainty in both is much lower during the data years than the
+projection years.
+
+Uncertainty in BT RE propagates into both expected recruitment and
+estimated random effect for recruitment, but the latter also includes
+uncertainty due to the residual variability in recruitment.
 
 \hypertarget{discussion}{%
 \section*{Discussion}\label{discussion}}
 \addcontentsline{toc}{section}{Discussion}
 
-The new features of Multi-WHAM include
+\hypertarget{general-model-aspects}{%
+\subsection*{General Model aspects}\label{general-model-aspects}}
+\addcontentsline{toc}{subsection}{General Model aspects}
 
-\begin{itemize}
-\tightlist
-\item
-  seasonal intervals within years
-\item
-  variation in movement rates by stock, region-to-region, season, age,
-  and year
-\item
-  effects of environmental covariates on movement rates by stock,
-  region-to-region, season, and age
-\item
-  effects of environmental covariates on mortality rates by stock,
-  region, and age
-\item
-  effects of environmental covariates on recruitment by stock
-\item
-  stock-specific stock-recruitment models
-\item
-  priors for movement rates
-\item
-  seasonal operation of fleets
-\item
-  mortality and movement modeled sequentially or simultaneously
-\item
-  options for weighting of stock-specific SSB/R for global SPR-based
-  reference points
-\end{itemize}
+WHAM provides a comprehensive treatment of environmental covariates and
+their effects on populations using state-space methods (Maunder 2024).
+This framework accounts for the magnitude of differing uncertainties in
+observations and stochastic population dynamics processes. This version
+2.0 extends these inferences to movement rates for multi-region models.
+
+\hypertarget{future-developments}{%
+\subsection*{Future developments}\label{future-developments}}
+\addcontentsline{toc}{subsection}{Future developments}
+
+An obvious limitation to WHAM is the inability to include tagging
+observations of any type. Such observations are critical to estimation
+of movement parameters (e.g., Goethel et al. 2019), but also can inform
+mortality rate parameters (Hampton 1991). It is well known that natural
+mortality is seldom estimated in assessment models because the observed
+data often provide little information to distinguish natural mortality
+from other assessment model parameters (Lee et al. 2011; Clark 2022).
+Estimation of natural mortality may be even more challenging within
+state-space assessment models with their greater flexibility from
+inclusion of time-varying random effects. For example, we fixed the mean
+natural mortality for age 1 fish and Cadigan (2016) and Stock et al.
+(2021) also estimated natural mortality deviations. Therefore allowing
+tagging observations in WHAM should be a high priority even for models
+with a single stock and region.
+
+The work by Correa et al. (2023) on incorporating length information and
+modeling growth within WHAM has not yet been merged into the multi-stock
+version 2.0. Growth and movement would be challenging.
+
+\hypertarget{black-sea-bass}{%
+\subsection*{Black sea bass}\label{black-sea-bass}}
+\addcontentsline{toc}{subsection}{Black sea bass}
+
+In our investigation of bottom temperature effects on recruitment and
+natural mortality and time-varying random effects on natural mortality
+at age 1, we found only including effects on recruitment for the
+northern stock component to be the best model with respect to AIC. This
+is the same configuration configuration accepted during the assessment
+peer-review process and it is the model currently used for management
+(NEFSC 2023).
+
+Although not relevant to the best performing model, the effect of bottom
+temperature on age 1 M would be expected to be opposite of that for
+recruitment because lower M with higher temperature would produce higher
+recruitment. This expected effect was estimated only when random effects
+on age 1 M were also included in the model. This seems to provide
+further support to including random effects when examining covariate
+effects on population parameters as demonstrated by Miller et al. (2018)
+for effects on growth parameters.
+
+AIC suggested some weight for models with temperature effects on
+recruitment for the southern component and random effects on M at age 1.
+This might suggest making inferences on the population by using an
+ensemble of these and weighting by AIC (Burnham and Anderson 2002).
+However, the estimates of assessment outputs relevant for management
+(SSB, F) were similar among the models and weighted estimates would
+differ very little from the estimates with the lowest AIC. {[}but what
+about reference points?{]}
+
+\hypertarget{temperature-effects}{%
+\subsubsection*{Temperature effects}\label{temperature-effects}}
+\addcontentsline{toc}{subsubsection}{Temperature effects}
+
+BSB in the NEUS is at the northern extent of its range. hence the range
+extension to the north with increased temperature. The evidence for
+temperature effects on recruitment was strong only for the northern
+component which is the component of the stock at the limit of the
+species' range. Opposite effects of temperature on recruitment or
+population size would be expected for species in the same general area
+that are at the southern extent of their range (Gabriel 1992). For
+example, higher recruitment of the Southern New England-Mid-Atlantic
+stock of yellowtail flounder is correlated with more cold water
+persistence into summer fall on the Northeast US shelf Miller et al.
+(2016b).
+
+\hypertarget{self-tests}{%
+\subsubsection*{Self Tests}\label{self-tests}}
+\addcontentsline{toc}{subsubsection}{Self Tests}
+
+Simulation self tests performed by Stock and Miller (2021) simulated
+process errors and observation errors and their simulations showed
+little bias in estimated assessment output such as SSB. Li et al. (2024)
+used the same type of simulations and found what?.
+
+Here we conditioned on the estimated process errors for black sea bass.
+This conditional approach has been suggested as appropriate for tactical
+management where we are interested in inferences assuming our estimation
+of the population and fishing history from the original data is the
+truth Cadigan et al. (2024). We found some bias in SSB estimation for
+the black sea bass application (negatively for the northern stock),
+using the default model. We also found instability in the estimation of
+the observation variance parameters for the aggregate indices such that
+they often were estimated at the lower bound of 0. However, we found
+that the magnitude of bias was largely influenced by the large
+uncertainty estimated in some of the age composition observations
+assumed to have a logistic-normal distribution. When using the
+logistic-normal likelihood for management, we recommend inspecting the
+size of the estimated (marginal) standard deviation of the logistic
+normal model when self-test bias is non-negligible. We also recommend
+investigating the multiplicative transformation for the logistic normal
+rather than the additive transformation which is currently the only
+option in WHAM (Cadigan 2016).
+
+?Selectivity RE are only on index age comp in the north which may be why
+bias is larger there?
+
+? We found REML provided less biased estimation of SSB and recruitment
+which are functions of random effects. Whether REML should be the
+default approach for estimating these quantities from state-space stock
+assessment models requires further investigation. For example,
+improvement in bias may be negligible when data contain low observation
+error and/or there are few fixed effects parameters. ? larger variance
+estimates allows greater spread of random effects estimates. Important
+for conditional self-test where estimated RE are of primary importance
+(Recruitment and SSB). When simulating RE and refitting, the sign of
+differences between estimates and true values can be random across
+simulations. Probably more important with more fixed effects and less
+informative data
+
+Including tagging data in WHAM would also be helpful for BSB because we
+are using the same data to estimate movement outside of the model as we
+are using to estimate the other parameters in WHAM.
+
+\hypertarget{conclusions}{%
+\subsection*{Conclusions}\label{conclusions}}
+\addcontentsline{toc}{subsection}{Conclusions}
+
+WHAM version 2.0 extends the existing R package to allow multiple stocks
+and discrete spatial regions. It allows autocorrelated random effects
+and environmental covariate effects on movement rates. Estimates of
+movement rates from auxiliary studies can be used to construct prior
+distributions for movement rates in lieu of integrated likelihoods for
+tagging data. Version 2.0 also allows seasonal treatment of different
+fishing fleets and movement of individual stocks, and internal
+estimation of SPR- and MSY-based reference points accounting for
+seasonal spatial dynamics including movement and mortality and any
+environmental covariate effects.
+
+We applied this extended version to investigate alternative hypotheses
+about effects of bottom temperature on recruitment and age 1 natural
+mortality for black sea bass. Our analyses indicate evidence for effects
+of bottom temperature on recruitment for the northern component
+represents was stronger than other models that included effects on age 1
+mortality and/or corresponding effects on the southern stock component.
+
+Future WHAM development should prioritize including tagging data to
+inform stock assessment parameter estimation and merging in the version
+created by Correa et al. (2023) to allow modeling of growth and
+inclusion of length and length-at-age composition observations.
 
 \hypertarget{references}{%
 \section*{References}\label{references}}
@@ -1083,16 +1289,101 @@ The new features of Multi-WHAM include
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-andersenkeiding02}{}}%
+Andersen, P.K., and Keiding, N. 2002. Multi-state models for event
+history analysis. Statistical Methods in Medical Research \textbf{11}:
+91--115.
+
+\leavevmode\vadjust pre{\hypertarget{ref-arnason72}{}}%
+Arnason, A.N. 1972. Parameter estimates from mark-recapture experiments
+on two populations subject to migration and death. Researches on
+Population Ecology \textbf{13}: 97--113.
+doi:\href{https://doi.org/10.1007/BF02521971}{10.1007/BF02521971}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-bosleyetal22}{}}%
+Bosley, K.M., Schueller, A.M., Goethel, D.R., Hanselman, D.H., Fenske,
+K.H., Berger, A.M., Deroba, J.J., and Langseth, B.J. 2022. Finding the
+perfect mismatch: Evaluating misspecification of population structure
+within spatially explicit integrated population models. Fish and
+Fisheries \textbf{23}(2): 294--315.
+doi:\href{https://doi.org/10.1111/faf.12616}{10.1111/faf.12616}.
+
 \leavevmode\vadjust pre{\hypertarget{ref-brooks24}{}}%
 Brooks, E.N. 2024. Pragmatic approaches to modeling recruitment in
 fisheries stock assessment: A perspective. Fisheries Research
 \textbf{270}: 106896.
 doi:\href{https://doi.org/10.1016/j.fishres.2023.106896}{10.1016/j.fishres.2023.106896}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-burnhamanderson02}{}}%
+Burnham, K.P., and Anderson, D.R. 2002. Model selection and multimodel
+inference: A practical information-theoretic approach. Springer-Verlag,
+New York.
+
+\leavevmode\vadjust pre{\hypertarget{ref-cadigan16}{}}%
+Cadigan, N.G. 2016. A state-space stock assessment model for northern
+cod, including under-reported catches and variable natural mortality
+rates. Canadian Journal of Fisheries and Aquatic Sciences
+\textbf{73}(2): 296--308.
+doi:\href{https://doi.org/10.1139/cjfas-2015-0047}{10.1139/cjfas-2015-0047}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-cadiganetal24}{}}%
+Cadigan, N.G., Albertsen, C.M., Zheng, N., and Nielsen, A. 2024. Are
+state-space stock assessment model confidence intervals accurate? Case
+studies with SAM and barents sea stocks. Fisheries Research
+\textbf{272}: 106950.
+doi:\href{https://doi.org/10.1016/j.fishres.2024.106950}{10.1016/j.fishres.2024.106950}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-caoetal14}{}}%
+Cao, J., Truesdell, S.B., and Chen, Y. 2014. Impacts of seasonal stock
+mixing on the assessment of {A}tlantic cod in the {G}ulf of {M}aine.
+ICES Journal of Marine Science \textbf{71}(6): 1443--1457.
+doi:\href{https://doi.org/10.1093/icesjms/fsu066}{10.1093/icesjms/fsu066}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-clark22}{}}%
+Clark, W.G. 2022. Why natural mortality is estimable, in theory if not
+in practice, in a data-rich stock assessment. Fisheries Research
+\textbf{248}: 106203.
+doi:\href{https://doi.org/10.1016/j.fishres.2021.106203}{10.1016/j.fishres.2021.106203}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-commenges99}{}}%
+Commenges, D. 1999. Multi-state models in epidemiology. Lifetime Data
+Analysis \textbf{5}: 315--327.
+
+\leavevmode\vadjust pre{\hypertarget{ref-correaetal23}{}}%
+Correa, G.M., Monnahan, C.C., Sullivan, J.Y., Thorson, J.T., and Punt,
+A.E. 2023. Modelling time-varying growth in state-space stock
+assessments. ICES Journal of Marine Science \textbf{80}(7): 2036--2049.
+doi:\href{https://doi.org/10.1093/icesjms/fsad133}{10.1093/icesjms/fsad133}.
+
 \leavevmode\vadjust pre{\hypertarget{ref-francis14}{}}%
 Francis, R.I.C.C. 2014. Replacing the multinomial in stock assessment
 models: A first step. Fisheries Research \textbf{151}: 70--84.
 doi:\href{https://doi.org/10.1016/j.fishres.2013.12.015}{10.1016/j.fishres.2013.12.015}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-gabriel92}{}}%
+Gabriel, W.L. 1992. Persistence of demersal fish assemblages between
+{C}ape {H}atteras and {N}ova {S}cotia, {N}orthwest {A}tlantic. Journal
+of the Northwest Atlantic Fisheries Science \textbf{14}(1): 29--46.
+
+\leavevmode\vadjust pre{\hypertarget{ref-goetheletal19}{}}%
+Goethel, D.R., Bosley, K.M., Hanselman, D.H., Berger, A.M., Deroba,
+J.J., Langseth, B.J., and Schueller, A.M. 2019. Exploring the utility of
+different tag-recovery experimental designs for use in spatially
+explicit, tag-integrated stock assessment models. Fisheries Research
+\textbf{219}: 105320.
+doi:\href{https://doi.org/10.1016/j.fishres.2019.105320}{10.1016/j.fishres.2019.105320}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-hampton91}{}}%
+Hampton, J. 1991. Estimation of southern bluefin tuna \emph{{T}hunnus
+maccoyii} natural mortality and movement rates from tagging experiments.
+Fishery Bulletin \textbf{89}(4): 591--610.
+
+\leavevmode\vadjust pre{\hypertarget{ref-hearnetal87}{}}%
+Hearn, W.S., Sundland, R.L., and Hampton, J. 1987. Robust estimation of
+the natural mortality rate in a completed tagging experiment with
+variable fishing intensity. Journal Du Conseil International Pour
+L'exploration De La Mer \textbf{43}: 107--117.
+doi:\href{https://doi.org/10.1093/icesjms/43.2.107}{10.1093/icesjms/43.2.107}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-kemenysnell60}{}}%
 Kemeny, J.G., and Snell, J.L. 1960. Finite markov chains. D. Van
@@ -1104,19 +1395,30 @@ Kristensen, K., Nielsen, A., Berg, C., Skaug, H., and Bell, B.M. 2016.
 Statistical Software \textbf{70}: 1--21.
 doi:\href{https://doi.org/10.18637/jss.v070.i05}{10.18637/jss.v070.i05}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-leeetal11}{}}%
+Lee, H.-H., Maunder, M.N., Piner, K.R., and Methot, R.D. 2011.
+Estimating natural mortality within a fisheries stock assessment model:
+An evaluation using simulation analysis based on twelve stock
+assessments. Fisheries Research \textbf{109}(1): 89--94.
+doi:\href{https://doi.org/10.1016/j.fishres.2011.01.021}{10.1016/j.fishres.2011.01.021}.
+
 \leavevmode\vadjust pre{\hypertarget{ref-legaultrestrepo99}{}}%
 Legault, C.M., and Restrepo, V.R. 1999. A flexible forward
 age-structured assessment program. Col. Vol. Sci. Pap. ICCAT
 \textbf{49}(2): 246--253.
 
-\leavevmode\vadjust pre{\hypertarget{ref-legaultetal23}{}}%
-Legault, C.M., Wiedenmann, J., Deroba, J.J., Fay, G., Miller, T.J.,
-Brooks, E.N., Bell, R.J., Langan, J., Cournane, J., Jones, A.W., and
-Muffley, B. 2023. Data rich but model resistant: An evaluation of
-data-limited methods to manage fisheries with failed age-based stock
-assessments. Canadian Journal of Fisheries and Aquatic Sciences
-\textbf{80}(1): 27--42.
-doi:\href{https://doi.org/10.1139/cjfas-2022-0045}{10.1139/cjfas-2022-0045}.
+\leavevmode\vadjust pre{\hypertarget{ref-lietal24}{}}%
+Li, C., Deroba, J.J., Miller, T.J., Legault, C.M., and Perretti, C.T.
+2024. An evaluation of common stock assessment diagnostic tools for
+choosing among state-space models with multiple random effects
+processes. Fisheries Research \textbf{273}: 106968.
+doi:\href{https://doi.org/10.1016/j.fishres.2024.106968}{10.1016/j.fishres.2024.106968}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-maunder24}{}}%
+Maunder, M.N. 2024. Towards a comprehensive framework for providing
+management advice from statistical inference using population dynamics
+models. Ecological Modelling \textbf{498}: 110836.
+doi:\href{https://doi.org/10.1016/j.ecolmodel.2024.110836}{10.1016/j.ecolmodel.2024.110836}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-methotwetzel13}{}}%
 Methot, R.D., and Wetzel, C.R. 2013. Stock {S}ynthesis: A biological and
@@ -1124,8 +1426,10 @@ statistical framework for fish stock assessment and fishery management.
 Fisheries Research \textbf{142}(1): 86--99.
 
 \leavevmode\vadjust pre{\hypertarget{ref-milleretal16_yoy_survival}{}}%
-Miller, A.S., Shepherd, G.R., and Fratantoni, P.S. 2016a. {PLOS} {ONE}
-\textbf{11}(1): e0147627.
+Miller, A.S., Shepherd, G.R., and Fratantoni, P.S. 2016a. Offshore
+habitat preference of overwintering juvenile and adult black sea bass,
+\emph{{C}entropristis} \emph{striata}, and the relationship to
+year-class success. {PLOS} {ONE} \textbf{11}(1): e0147627.
 doi:\href{https://doi.org/10.1371/journal.pone.0147627}{10.1371/journal.pone.0147627}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-millerandersen08}{}}%
@@ -1164,17 +1468,50 @@ Myers, R.A. 1998. When do environment--recruitment correlations work?
 Reviews in Fish Biology and Fisheries \textbf{8}(3): 229--249.
 doi:\href{https://doi.org/10.1023/A:1008828730759}{10.1023/A:1008828730759}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-nefsc22}{}}%
+NEFSC. 2022a. Final report of the haddock research track assessment
+working group. {Available} at
+https://s3.us-east-1.amazonaws.com/nefmc.org/14b\_EGB\_Research\_Track\_Haddock\_WG\_Report\_DRAFT.pdf.
+
+\leavevmode\vadjust pre{\hypertarget{ref-nefsc22a}{}}%
+NEFSC. 2022b. Report of the american plaice research track working
+group. {Available} at
+https://s3.us-east-1.amazonaws.com/nefmc.org/2\_American-Plaice-WG-Report.pdf.
+
 \leavevmode\vadjust pre{\hypertarget{ref-nefsc23}{}}%
 NEFSC. 2023. Report of the black sea bass (\emph{{C}entropristis}
 \emph{striata}) research track stock assessment working group.
 {Available} at
 https://www.mafmc.org/s/a\_2023\_BSB\_UNIT\_RTWG\_Report\_V2\_12\_2\_2023-1.pdf.
 
+\leavevmode\vadjust pre{\hypertarget{ref-nefsc24}{}}%
+NEFSC. 2024. Butterfish research track assessment report. US Dept Commer
+Northeast Fish Sci Cent Ref Doc. 24-03; 191 p.
+
 \leavevmode\vadjust pre{\hypertarget{ref-nielsenberg14}{}}%
 Nielsen, A., and Berg, C.W. 2014. Estimation of time-varying selectivity
 in stock assessments using state-space models. Fisheries Research
 \textbf{158}: 96--101.
 doi:\href{https://doi.org/10.1016/j.fishres.2014.01.014}{10.1016/j.fishres.2014.01.014}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-perreaultetal20}{}}%
+Perreault, A.M.J., Wheeland, L.J., Morgan, M.J., and Cadigan, N.G. 2020.
+A state-space stock assessment model for {American} plaice on the
+{Grand} {Bank} of {Newfoundland}. Journal of Northwest Atlantic Fishery
+Science \textbf{51}: 45--104.
+doi:\href{https://doi.org/10.2960/j.v51.m727}{10.2960/j.v51.m727}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-puntetal20}{}}%
+Punt, A.E., Dunn, A., Elvarsson, B., Hampton, J., Hoyle, S.D., Maunder,
+M.N., Methot, R.D., and Nielsen, A. 2020. Essential features of the
+next-generation integrated fisheries stock assessment package: A
+perspective. Fisheries Research \textbf{229}: 105617.
+doi:\url{https://doi.org/10.1016/j.fishres.2020.105617}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-schwarzetal93}{}}%
+Schwarz, C.J., Schweigert, J.F., and Arnason, A.N. 1993. Estimating
+migration rates using tag-recovery data. Biometrics \textbf{49}:
+177--193. doi:\href{https://doi.org/10.2307/2532612}{10.2307/2532612}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-stockmiller21}{}}%
 Stock, B.C., and Miller, T.J. 2021. The {Woods Hole Assessment Model}
@@ -1190,6 +1527,12 @@ natural mortality improves a state-space assessment model for {Southern
 New England}-{Mid Atlantic} yellowtail flounder. Fisheries Research
 \textbf{237}: 105873.
 doi:\href{https://doi.org/10.1016/j.fishres.2021.105873}{10.1016/j.fishres.2021.105873}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-sullivanetal05}{}}%
+Sullivan, M.C., Cowen, R.K., and Steves, B.P. 2005. Evidence for
+atmosphere{--}ocean forcing of yellowtail flounder (\emph{{L}imanda}
+\emph{ferruginea}) recruitment in the {M}iddle {A}tlantic {B}ight.
+Fisheries Oceanography \textbf{14}(5): 386--399.
 
 \leavevmode\vadjust pre{\hypertarget{ref-thorsonetal17}{}}%
 Thorson, J.T., Johnson, K.F., Methot, R.D., and Taylor, I.G. 2017.
@@ -1219,6 +1562,24 @@ stock assessment models: Calculating residuals with correct properties.
 Fisheries Research \textbf{257}: 106487.
 doi:\url{https://doi.org/10.1016/j.fishres.2022.106487}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-varkeyetal22}{}}%
+Varkey, D.A., Babyn, J., Regular, P., Ings, D.W., Kumar, R., Rogers, B.,
+Champagnat, J., and Morgan, M.J. 2022. A state-space model for stock
+assessment of cod (gadus morhua) stock in NAFO subdivision 3Ps. {DFO}
+{Can.} {Sci.} {Advis.} {Sec.} {Res.} {Doc.} 2022/022. v + 78 p.
+
+\leavevmode\vadjust pre{\hypertarget{ref-yingetal11}{}}%
+Ying, Y., Chen, Y., Lin, L., and Gao, T. 2011. Risks of ignoring fish
+population spatial structure in fisheries management. Canadian Journal
+of Fisheries and Aquatic Sciences \textbf{68}(12): 2101--2120.
+doi:\href{https://doi.org/10.1139/f2011-116}{10.1139/f2011-116}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-zhengcadigan23}{}}%
+Zheng, N., and Cadigan, N. 2023. Frequentist conditional variance for
+nonlinear mixed-effects models. Journal of Statistical Theory and
+Practice \textbf{17}(3).
+doi:\href{https://doi.org/10.1007/s42519-022-00304-5}{10.1007/s42519-022-00304-5}.
+
 \end{CSLReferences}
 
 \pagebreak
@@ -1233,6 +1594,10 @@ doi:\url{https://doi.org/10.1016/j.fishres.2022.106487}.
 
 \pagebreak
 
+\hypertarget{figures}{%
+\section*{Figures}\label{figures}}
+\addcontentsline{toc}{section}{Figures}
+
 \begin{figure}
 
 {\centering \includegraphics[width=0.8\linewidth]{bsb_movement_diagram} 
@@ -1241,31 +1606,77 @@ doi:\url{https://doi.org/10.1016/j.fishres.2022.106487}.
 
 \caption{Diagram of intervals within the year and configuation of the dynamics of each component of the BSB population.}\label{fig:migration-diagram}
 \end{figure}
+\pagebreak
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{move_prior_post} 
+
+}
+
+\caption{Prior (black) and posterior (red) distributions of movement of northern component stock from north to south (top) and south to north (bottom).}\label{fig:move-prior-posterior}
+\end{figure}
+\pagebreak
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{Ecov} 
+
+}
+
+\caption{Observations and 95\% confidence intervals (points with vertical lines) and posterior estimates (lines) with 95\% confidence intervals (polygons) of bottom temperature anomalies in the north and south regions from model $M_0$.}\label{fig:bottom-temperature}
+\end{figure}
+\pagebreak
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{best_R_Ecov} 
+
+}
+
+\caption{Expected and Posterior Emperical Bayes estimates of annual recruitment for the northern stock component. Color defined by the corresponding annual bottom temperature anomaly.}\label{fig:BT-Ecov-R}
+\end{figure}
+\pagebreak
+
+\begin{figure}
+
+{\centering \includegraphics[height=0.95\textheight]{M_1_SSB_F_R} 
+
+}
+
+\caption{Annual estimates of SSB, average F (ages 6-7), and recruitment from model $M_1$. Polygons represent 95\% confidence intervals.}\label{fig:M1-SSB-F-R}
+\end{figure}
+\pagebreak
+
+\begin{figure}
+
+{\centering \includegraphics[height=0.95\textheight]{R_proj_results} 
+
+}
+
+\caption{Estimates of bottom temperature, recruitment, and expected recruitment, and coefficients of variation for the latter two from model $M_1$ assuming alternative bottom temperature scenarios described in the text. Polygons represent 95\% confidence intervals.}\label{fig:R-BT-proj}
+\end{figure}
+
+\pagebreak
+
+\begin{figure}
+
+{\centering \includegraphics[height=0.95\textheight]{selectivity_re_plot} 
+
+}
+
+\caption{Time and age-varying selectivty for fleets and indices in the northern region with autoregressive random effects.}\label{fig:selectivity-re}
+\end{figure}
+\pagebreak
+
+\clearpage
+
+\hypertarget{tables}{%
+\section*{Tables}\label{tables}}
+\addcontentsline{toc}{section}{Tables}
 
 \setcounter{table}{0}
 \renewcommand\thetable{\arabic{table}}
-
-\begin{landscape}\begin{table}
-
-\caption{\label{tab:age-comp-sel-table}Configuration of Age composition likelihood, mean selectivity model, and selectivity random effects for each age composition data component.}
-\centering
-\begin{tabular}[t]{llll}
-\toprule
-Data component & Age Composition Likelihood & Mean Selectivity model & Random effects configuration\\
-\midrule
-North Commercial & Dirichlet-Multinomial & age-specific (flat-topped at ages > 3) & 2D-AR1 (age and year)\\
-North Recreational & Logistic-normal (0s as missing) & age-specific (flat-topped at ages > 6) & 2D-AR1 (age and year)\\
-South Commercial & Logistic-normal (AR1, 0s as missing) & logistic & None\\
-South Recreational & Logistic-normal (AR1, 0s as missing) & logistic & None\\
-North Recreational CPA & Logistic-normal (0s as missing) & age-specific (flat-topped at ages > 1) & AR1 (year)\\
-\addlinespace
-North VAST & Dirichlet-Multinomial & age-specific (flat-topped at ages > 4) & 2D-AR1 (age and year)\\
-South Recreational CPA & Logistic-normal (AR1, 0s as missing) & age-specific (flat-topped at ages > 2) & None\\
-South VAST & Logistic-normal (AR1, 0s as missing) & age-specific (flat-topped at ages > 1) & None\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{landscape}
 
 \begin{table}
 
@@ -1307,22 +1718,22 @@ $M_{13}$ & $M$ at age 1 & $M$ at age 1 & time-varying\\
 \cmidrule(l{3pt}r{3pt}){2-9}
 Model & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7\\
 \midrule
-$M_{0}$ & 14.53 & 16.09 & 13.78 & 13.69 & 13.79 & 17.02 & 8.47 & 8.22\\
+$M_{0}$ & 11.83 & 11.39 & 10.41 & 10.05 & 9.86 & 9.41 & 8.47 & 8.22\\
 $M_{1}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
-$M_{2}$ & 15.29 & 16.77 & 14.80 & 14.71 & 14.85 & 18.11 & 9.20 & 9.22\\
-$M_{3}$ & 3.49 & 5.42 & 4.42 & 4.69 & 5.02 & 8.75 & 0.73 & 1.00\\
-$M_{4}$ & 16.51 & 18.05 & 15.63 & 15.45 & 15.63 & 18.79 & 10.08 & 9.85\\
+$M_{2}$ & 12.63 & 12.03 & 11.41 & 11.06 & 10.91 & 10.34 & 9.20 & 9.22\\
+$M_{3}$ & 0.80 & 0.64 & 1.00 & 1.01 & 1.05 & 0.93 & 0.73 & 1.00\\
+$M_{4}$ & 13.81 & 13.35 & 12.26 & 11.82 & 11.71 & 11.18 & 10.08 & 9.85\\
 \addlinespace
-$M_{5}$ & 16.09 & 17.51 & 15.30 & 15.16 & 15.29 & 18.41 & 9.86 & 9.71\\
-$M_{6}$ & 18.07 & 19.46 & 17.14 & 16.92 & 17.12 & 20.18 & 11.46 & 11.33\\
-$M_{7}$ & 17.05 & 18.48 & 15.57 & 14.96 & 15.39 & 18.19 & 9.71 & 9.42\\
-$M_{8}$ & 5.02 & 6.87 & 4.90 & 4.66 & 5.28 & 8.59 & 0.98 & 0.99\\
-$M_{9}$ & 17.82 & 19.17 & 16.59 & 15.98 & 16.45 & 19.28 & 10.44 & 10.43\\
+$M_{5}$ & 13.25 & 12.55 & 11.68 & 11.21 & 11.07 & 10.41 & 9.86 & 9.71\\
+$M_{6}$ & 15.22 & 14.51 & 13.52 & 12.97 & 12.91 & 12.17 & 11.46 & 11.33\\
+$M_{7}$ & 14.32 & 13.75 & 12.17 & 11.30 & 11.43 & 10.55 & 9.71 & 9.42\\
+$M_{8}$ & 2.25 & 2.10 & 1.47 & 0.96 & 1.29 & 0.91 & 0.98 & 0.99\\
+$M_{9}$ & 15.12 & 14.39 & 13.17 & 12.31 & 12.48 & 11.49 & 10.44 & 10.43\\
 \addlinespace
-$M_{10}$ & 5.78 & 7.56 & 5.92 & 5.68 & 6.34 & 9.68 & 1.71 & 1.99\\
-$M_{11}$ & 19.02 & 20.48 & 17.57 & 16.96 & 17.39 & 20.19 & 11.68 & 11.39\\
-$M_{12}$ & 18.61 & 19.90 & 17.09 & 16.43 & 16.88 & 19.58 & 11.10 & 10.92\\
-$M_{13}$ & 20.58 & 21.89 & 19.09 & 18.43 & 18.88 & 21.57 & 13.07 & 12.88\\
+$M_{10}$ & 3.05 & 2.74 & 2.47 & 1.97 & 2.34 & 1.84 & 1.71 & 1.99\\
+$M_{11}$ & 16.29 & 15.74 & 14.17 & 13.30 & 13.43 & 12.55 & 11.68 & 11.39\\
+$M_{12}$ & 15.73 & 14.91 & 13.43 & 12.46 & 12.64 & 11.55 & 11.10 & 10.92\\
+$M_{13}$ & 17.70 & 16.91 & 15.43 & 14.46 & 14.64 & 13.55 & 13.07 & 12.88\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1338,18 +1749,18 @@ $M_{13}$ & 20.58 & 21.89 & 19.09 & 18.43 & 18.88 & 21.57 & 13.07 & 12.88\\
 Model & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7\\
 \midrule
 $M_{0}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.01\\
-$M_{1}$ & 0.76 & 0.89 & 0.80 & 0.80 & 0.83 & 0.97 & 0.36 & 0.38\\
+$M_{1}$ & 0.45 & 0.43 & 0.42 & 0.38 & 0.41 & 0.37 & 0.36 & 0.38\\
 $M_{2}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
-$M_{3}$ & 0.13 & 0.06 & 0.09 & 0.08 & 0.07 & 0.01 & 0.25 & 0.23\\
+$M_{3}$ & 0.30 & 0.31 & 0.25 & 0.23 & 0.24 & 0.23 & 0.25 & 0.23\\
 $M_{4}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
 \addlinespace
 $M_{5}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
 $M_{6}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
 $M_{7}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
-$M_{8}$ & 0.06 & 0.03 & 0.07 & 0.08 & 0.06 & 0.01 & 0.22 & 0.23\\
+$M_{8}$ & 0.15 & 0.15 & 0.20 & 0.24 & 0.21 & 0.24 & 0.22 & 0.23\\
 $M_{9}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
 \addlinespace
-$M_{10}$ & 0.04 & 0.02 & 0.04 & 0.05 & 0.04 & 0.01 & 0.15 & 0.14\\
+$M_{10}$ & 0.10 & 0.11 & 0.12 & 0.14 & 0.13 & 0.15 & 0.15 & 0.14\\
 $M_{11}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
 $M_{12}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
 $M_{13}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
@@ -1359,33 +1770,58 @@ $M_{13}$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
 
 \begin{table}
 
-\caption{\label{tab:rho-table}Mohn's $\rho$ for SSB, R, average F at ages 6 and 7 in northern and southern regions.}
+\caption{\label{tab:rho-table}Mohn's $\rho$ for SSB, and average F at ages 6 and 7 in northern and southern regions.}
 \centering
-\begin{tabular}[t]{lrrrrrr}
+\begin{tabular}[t]{lrrrr}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{2}{c}{SSB} & \multicolumn{2}{c}{Average F} & \multicolumn{2}{c}{Recruitment} \\
-\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
-Model & North & South & North & South & North & South\\
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{SSB} & \multicolumn{2}{c}{Average F} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+Model & North & South & North & South\\
 \midrule
-$M_{0}$ & -0.031 & -0.026 & 0.032 & -0.043 & 0.211 & -0.007\\
-$M_{1}$ & -0.040 & -0.023 & 0.041 & -0.048 & 0.181 & -0.024\\
-$M_{2}$ & -0.031 & -0.027 & 0.032 & -0.043 & 0.211 & -0.007\\
-$M_{3}$ & -0.031 & -0.027 & 0.031 & -0.043 & 0.193 & -0.007\\
-$M_{4}$ & -0.032 & -0.026 & 0.032 & -0.044 & 0.268 & -0.006\\
+$M_{0}$ & -0.040 & -0.023 & 0.041 & -0.048\\
+$M_{1}$ & -0.040 & -0.023 & 0.041 & -0.048\\
+$M_{2}$ & -0.040 & -0.024 & 0.041 & -0.047\\
+$M_{3}$ & -0.040 & -0.024 & 0.041 & -0.047\\
+$M_{4}$ & -0.041 & -0.022 & 0.042 & -0.048\\
 \addlinespace
-$M_{5}$ & -0.031 & -0.026 & 0.032 & -0.045 & 0.210 & -0.008\\
-$M_{6}$ & -0.032 & -0.025 & 0.032 & -0.045 & 0.267 & -0.007\\
-$M_{7}$ & -0.033 & -0.026 & 0.033 & -0.043 & 0.225 & -0.007\\
-$M_{8}$ & -0.035 & -0.027 & 0.035 & -0.043 & 0.186 & -0.007\\
-$M_{9}$ & -0.033 & -0.027 & 0.033 & -0.043 & 0.224 & -0.008\\
+$M_{5}$ & -0.041 & -0.023 & 0.042 & -0.048\\
+$M_{6}$ & -0.042 & -0.023 & 0.042 & -0.048\\
+$M_{7}$ & -0.042 & -0.022 & 0.043 & -0.048\\
+$M_{8}$ & -0.044 & -0.023 & 0.044 & -0.048\\
+$M_{9}$ & -0.042 & -0.024 & 0.043 & -0.048\\
 \addlinespace
-$M_{10}$ & -0.035 & -0.027 & 0.035 & -0.043 & 0.186 & -0.008\\
-$M_{11}$ & -0.032 & -0.026 & 0.032 & -0.044 & 0.253 & -0.007\\
-$M_{12}$ & -0.033 & -0.026 & 0.033 & -0.045 & 0.224 & -0.008\\
-$M_{13}$ & -0.032 & -0.025 & 0.032 & -0.045 & 0.253 & -0.008\\
+$M_{10}$ & -0.044 & -0.024 & 0.044 & -0.047\\
+$M_{11}$ & -0.041 & -0.022 & 0.042 & -0.048\\
+$M_{12}$ & -0.042 & -0.023 & 0.043 & -0.048\\
+$M_{13}$ & -0.041 & -0.023 & 0.042 & -0.048\\
 \bottomrule
 \end{tabular}
 \end{table}
+\begin{table}
+
+\caption{\label{tab:beta-sig-peel-table}Estimates of temperature effects on recruitment and variance and autocorrelation parameters for recruitment for northern ($N$) and southern ($S$) components for models with no effects ($M_0$), effects on specific components ($M_1$ and $M_2$) or both components simultaneously ($M_3$) from the full model (Peel 0) and each retrospective peel.}
+\centering
+\begin{tabular}[t]{lrrrrrrrr}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{8}{c}{Peel} \\
+\cmidrule(l{3pt}r{3pt}){2-9}
+Parameter & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7\\
+\midrule
+$M_{1}$ $\widehat{\beta}_{R,N}$ & 0.474 & 0.480 & 0.485 & 0.476 & 0.464 & 0.468 & 0.439 & 0.445\\
+$M_{2}$ $\widehat{\beta}_{R,S}$ & 0.099 & 0.105 & 0.094 & 0.095 & 0.092 & 0.096 & 0.099 & 0.091\\
+$M_{3}$ $\widehat{\beta}_{R,N}$ & 0.474 & 0.480 & 0.485 & 0.476 & 0.464 & 0.468 & 0.439 & 0.445\\
+$M_{3}$ $\widehat{\beta}_{R,S}$ & 0.099 & 0.105 & 0.094 & 0.095 & 0.092 & 0.096 & 0.099 & 0.091\\
+$M_{0}$ Conditional $\widehat{\sigma}_{R,N}$ & 0.925 & 0.953 & 0.978 & 0.988 & 0.978 & 1.010 & 0.981 & 1.007\\
+\addlinespace
+$M_{1}$ Conditional $\widehat{\sigma}_{R,N}$ & 0.730 & 0.752 & 0.780 & 0.786 & 0.775 & 0.801 & 0.785 & 0.800\\
+$M_{0}$ $\widehat{\rho}_{R,N}$ & 0.362 & 0.375 & 0.385 & 0.405 & 0.424 & 0.432 & 0.427 & 0.431\\
+$M_{1}$ $\widehat{\rho}_{R,N}$ & 0.296 & 0.307 & 0.334 & 0.373 & 0.394 & 0.406 & 0.428 & 0.429\\
+$M_{0}$ Marginal $\widehat{\sigma}_{R,N}$ & 0.992 & 1.028 & 1.060 & 1.080 & 1.081 & 1.120 & 1.084 & 1.117\\
+$M_{1}$ Marginal $\widehat{\sigma}_{R,N}$ & 0.764 & 0.791 & 0.827 & 0.848 & 0.843 & 0.877 & 0.869 & 0.885\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \clearpage
 
 \hypertarget{supplemental-materials}{%
@@ -1453,5 +1889,150 @@ deviation of the values \(y_{i,b}\). The mean values did not differ
 meaningfully from the transformation of the original estimates
 (\(y_{1\rightarrow 2} = -3.79\) and \(y_{2\rightarrow 1} = -0.79\)) and
 the standard deviation was approximately 0.2 for both parameters.
+
+\hypertarget{diagnostics}{%
+\subsection*{Diagnostics}\label{diagnostics}}
+\addcontentsline{toc}{subsection}{Diagnostics}
+
+\hypertarget{jitter-fits-for-model-m_0}{%
+\subsubsection{\texorpdfstring{Jitter fits for model
+\(M_0\)}{Jitter fits for model M\_0}}\label{jitter-fits-for-model-m_0}}
+
+WHAM by default completes three newton steps after the stats::nlminb
+minimization function completes to reduce the gradient at the minimized
+NLL. However, this generally has negligible effects on model estimates
+and the NLL. To reduce computation time, we did not complete these
+newton steps when performing jitter fits of the model. Without the
+Newton steps, the maximum (absolute) gradient sizes are generally less
+than 0.01 for models that converge satisfactorily.
+
+The 50 jitter fits demonstrated that a local minimum was obtained for
+the original fit of model \(M_0\) (Figure \ref{fig:jitter-M0}). Some
+lower NLLs were obtained with unacceptable gradients, but a slightly
+lower NLL was found with a satisfactory gradient and with and invertible
+hessian. We therefore refit model \(M_0\) and all remaining models using
+the better parameter estimates as initial values.
+
+\hypertarget{jitter-fits-for-model-m_1}{%
+\subsubsection{\texorpdfstring{Jitter fits for model
+\(M_1\)}{Jitter fits for model M\_1}}\label{jitter-fits-for-model-m_1}}
+
+The 50 jitter fits gave no evidence of a better minimization of the NLL.
+Three lower NLLs were obtained, but with unacceptably large gradients
+(Figure \ref{fig:jitter-M1}). The largest differences in parameter
+estimates for these three jitters were for numbers at age and
+selectivity random effects variance and correlation parameters.
+
+\hypertarget{self-test-for-model-m_1}{%
+\subsubsection{\texorpdfstring{Self test for model
+\(M_1\)}{Self test for model M\_1}}\label{self-test-for-model-m_1}}
+
+Initial fits to simulated data from model \(M_1\) showed estimation of
+the observation error standard deviation multiplier for the recreational
+catch-per angler indices in the north and south regions was unstable.
+Many of the fits to the simulated data produced implausible estimates at
+the 0 boundary for these parameters (very negative values on log-scale).
+Therefore, we completed self-tests with these parameters fixed at the
+true values.
+
+For 7 of the the simulated data sets the model failed to optimize. The
+maximum absolute gradient was \(<10^{-6}\) for only 9 and \(<10^{-4}\)
+for 52 of the 93 successfully fitted models. The poor convergence
+appeared to be attributable to the estimation of the scalar for the
+standard errors of the log-transformed northern Recreational CPA index
+for which estimates tended to 0 for nearly all of the fits (\(<0.01\)
+for 83 fits). However, even across all fits including those with poor
+convergence, the SSB estimates appeared to be reliable (Figure
+\ref{fig:self-test-fig}).
+
+\hypertarget{one-step-ahead-residuals-for-model-m_1}{%
+\subsubsection{\texorpdfstring{One-step-ahead residuals for model
+\(M_1\)}{One-step-ahead residuals for model M\_1}}\label{one-step-ahead-residuals-for-model-m_1}}
+
+One-step-ahead residuals can now be calculated for all index, catch, and
+environmental covariate observations using methods described by Thygesen
+et al. (2017) and Trijoulet et al. (2023).
+
+\setcounter{table}{0}
+\renewcommand\thetable{S\arabic{table}}
+
+\begin{landscape}\begin{table}
+
+\caption{\label{tab:age-comp-sel-table}Configuration of age composition likelihoods, mean selectivity models, and selectivity random effects models for each age composition data component. For all logistic-normal likelihoods, any ages observed as zeros are treated as missing.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Data component & Age Composition Likelihood & Mean Selectivity model & Random effects Model\\
+\midrule
+North commercial fleet & Dirichlet-Multinomial & age-specific (ages > 3 fully selected) & AR1 correlation by age and year\\
+North recreational fleet & Logistic-normal (Independent) & age-specific (ages > 6 fully selected) & AR1 correlation by age and year\\
+South commercial fleet & Logistic-normal (AR1 correlation) & logistic & None\\
+South recreational fleet & Logistic-normal (AR1 correlation) & logistic & None\\
+North recreational CPA index & Logistic-normal (Independent) & age-specific (ages > 1 fully selected) & AR1 correlation by year\\
+\addlinespace
+North VAST index & Dirichlet-Multinomial & age-specific (ages > 4 fully selected) & AR1 correlation by age and year\\
+South recreational CPA index & Logistic-normal (AR1 correlation) & age-specific (ages > 2 fully selected) & None\\
+South VAST index & Logistic-normal (AR1 correlation) & age-specific (ages > 1 fully selected) & None\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{landscape}
+
+\setcounter{figure}{0}
+\renewcommand\thefigure{S\arabic{figure}}
+
+\pagebreak
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{fit_0_jitter_plt} 
+
+}
+
+\caption{Minimized negative log-likelihood for 50 fits where minimization used initial parameter values jittered from those provided by an initial fit for model $M_0$. Black jitters had maximum absolute gradient values < $10^{-10}$, grey jitters had values > $10^{-10}$ and < 1, and red jitters had values > 1.}\label{fig:jitter-M0}
+\end{figure}
+\pagebreak
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{fit_1_jitter_plt} 
+
+}
+
+\caption{Minimized negative log-likelihood for 50 fits where minimization used initial parameter values jittered from those provided by an initial fit for model $M_1$. Fits with black dots had maximum absolute gradient value < 0.01 and fits with red dots had values > 10.}\label{fig:jitter-M1}
+\end{figure}
+\pagebreak
+
+\begin{landscape}
+ 
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{self_test_results} 
+
+}
+
+\caption{Median relative bias of SSB for the North and South stock components for estimation models where the observation variance of log-indices are fixed and estimation is by maximum marginal likelihood (ML) or Restricted Maximum Likelihood (REML) or where the standard deviation of logistic-normal age composition observations are assumed to be 0.1 (over sqrt(1000)) (Low Error). Black and Red dashed lines represent the median of the yeaerly medians and the median across all yearly relative errors, respectively.}\label{fig:self-test-fig}
+\end{figure}
+\end{landscape}
+
+\begin{figure}
+
+{\centering \includegraphics[height=0.95\textheight]{SSB_F_R_rel_M1} 
+
+}
+
+\caption{Estimates of SSB, F, and recruitment relative to those of the best performing model, $M_1$.}\label{fig:SSB-F-R-rel-M1}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics[height=0.95\textheight]{Ecov_M1_rel_M0} 
+
+}
+
+\caption{Relative differences in posterior estimates of northern region bottom temperature anomalies ($\widehat X$) from the null model without effects on recruitment ($M_0$) and with effects on the northern stock component ($M_1$).}\label{fig:Ecov-M1-rel-M0}
+\end{figure}
+
+\pagebreak
 
 \end{document}
