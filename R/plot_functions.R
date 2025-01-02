@@ -49,6 +49,9 @@ plot.ecov <- function(mod, plot.pad = FALSE, do.tex=FALSE, do.png=FALSE, fontfam
     lines(years_full, ecov.pred[,i], col=plot.colors[i], lwd=3)
     if(length(years_full) > length(years)) abline(v=tail(years,1), lty=2)
   }
+  return(cbind.data.frame(Year = years_full, est = c(ecov.obs, ecov.pred), lo = c(ecov.low, ecov.pred.low), hi = c(ecov.high, ecov.pred.high), 
+    region = rep(c("North", "South"), each = length(years_full)),
+    type = rep(c("obs","pred"), each = 2*length(years_full))))
 }
 
 self_test_i <- function(i, fit_RDS = NULL, seeds = NULL, conditional = TRUE, map_change = NULL, res_dir = NULL, wham_location = NULL, test_dir = NULL, save_inputs = FALSE, 
@@ -242,68 +245,122 @@ plot_SSB <- function(sims, rep_name = "SSB", indices = 1:2, index_names = c("Nor
   }
 }
 
-make_pred_R_cv <- function(proj, fjp, type = 1){
+whichList <- function(mod, par = mod$env$last.par.best) {
+  nms <- names(mod$env$parameters)
+  which_by_name <- function(x) {
+    which_par <- which(names(par) == x)
+    y <- attr(mod$env$parameters[[x]],"shape")
+    if(is.null(y)) { #all estimated
+      y <- mod$env$parameters[[x]] 
+      y[] <- NA
+      y[] <- which_par
+    } else { #mapping used, not all estimated and/or some commonly estimated
+      y[] <- NA
+      f <- attr(mod$env$parameters[[x]], "map")
+      ind_unique <- unique(f[which(f>=0)]) #location of each unique estimated par
+      if(length(which_par)) for(l in 1:length(ind_unique)) {
+        y[which(f == ind_unique[l])] <- which_par[ind_unique[l]+1] #+1 because starts at 0
+      }
+    }
+    y
+  }
+  out <- lapply(nms,which_by_name)
+  names(out) <- nms
+  return(out)
+}
 
-  x <- TMB:::as.list.sdreport(proj$sdrep, report = FALSE, what = "Est")
+make_pred_R_cv <- function(proj, fjp=NULL, type = 1, region = 1){
+
+  if(is.null(fjp)) fjp <- proj$sdrep
+  if(is.null(fjp$jointPrecision)) stop("no jointPrecision matrix")
+  x <- TMB:::as.list.sdreport(fjp, report = FALSE, what = "Est")
   cov_full <- solve(fjp$jointPrecision)
+  index <- whichList(proj, proj$env$last.par.best)
   if(type == 1){ #continue ecov process
     #theta = mean_rec_par, ecov_mu, Ecov_beta_R, Ecov_re
-    theta <- c(x$mean_rec_pars[1,1], x$Ecov_process_pars[1,1], x$Ecov_beta_R[1,1,1], x$Ecov_re[,1])
-    #log_pred_R = mean_rec_pars + Ecov_beta_R * ecov_mu + Ecov_beta_R * Ecov_re
-    log_pred_R <- theta[1] + theta[3] * (theta[2] + x$Ecov_re[,1])
-    jac <- cbind(1,theta[3], theta[2]+x$Ecov_re[,1], diag(theta[3], length(x$Ecov_re[,1])))
-    ind <- match(theta, proj$env$last.par.best) #sketchy but seems to work
+    theta <- c(x$mean_rec_pars[region,1], x$Ecov_process_pars[1,region], x$Ecov_beta_R[region,region,1], x$Ecov_re[,region])
+    par_index <- c(index$mean_rec_pars[region,1], index$Ecov_process_pars[1,region], index$Ecov_beta_R[region,region,1], index$Ecov_re[,region])
     print(paste("type: ", type))
-    print(ind)
-    cov <- cov_full[ind,ind]
+    print(par_index)
+    #log_pred_R = mean_rec_pars + Ecov_beta_R * ecov_mu + Ecov_beta_R * Ecov_re
+    log_pred_R <- theta[1] + theta[3] * (theta[2] + x$Ecov_re[,region])
+    jac <- cbind(1,theta[3], theta[2]+x$Ecov_re[,region], diag(theta[3], length(x$Ecov_re[,region])))
+    # if(region == 2) ind[3] <- NA #beta not estimated
+    cov <- cov_full[par_index,par_index]
+    if(region == 2) cov[is.na(cov)] <- 0
     sd <- sqrt(diag(jac %*% cov %*% t(jac)))
     log_pred_R <- log_pred_R[which(proj$input$years_Ecov %in% proj$years_full)]
     sd <- sd[which(proj$input$years_Ecov %in% proj$years_full)]
   }
   if(type %in% 2:3){ # use average ecov in recent years
     #theta = mean_rec_par, ecov_mu, Ecov_beta_R, Ecov_re
-    ind_m_yrs <- which(proj$input$years_Ecov %in% proj$years) #which Ecov years are
+    ind_m_yrs <- which(proj$input$years_Ecov %in% proj$years) #which Ecov years are model years
+    # ind_m_yrs <- which(proj$input$years_Ecov %in% proj$years[proj$input$data$avg_years_Ecov+1]) #which Ecov years are averaged
     print(ind_m_yrs)
-    theta <- c(x$mean_rec_pars[1,1], x$Ecov_process_pars[1,1], x$Ecov_beta_R[1,1,1], x$Ecov_re[ind_m_yrs,1])
-    ind <- match(theta, proj$env$last.par.best) #sketchy but seems to work
-    print(paste("type: ", type))
-    print(ind)
+    theta <- c(x$mean_rec_pars[region,1], x$Ecov_process_pars[1,region], x$Ecov_beta_R[region,region,1], x$Ecov_re[ind_m_yrs,region])
+    par_index <- c(index$mean_rec_pars[region,1], index$Ecov_process_pars[1,region], index$Ecov_beta_R[region,region,1], index$Ecov_re[ind_m_yrs,region])
     #log_pred_R = mean_rec_pars + Ecov_beta_R * ecov_mu + Ecov_beta_R * Ecov_re
-    log_pred_R <- theta[1] + theta[3] * (theta[2] + x$Ecov_re[ind_m_yrs,1])
-    jac <- cbind(1,theta[3], theta[2]+x$Ecov_re[ind_m_yrs,1], diag(theta[3], length(ind_m_yrs)))
+    log_pred_R <- theta[1] + theta[3] * (theta[2] + x$Ecov_re[ind_m_yrs,region])
+    jac <- cbind(1,theta[3], theta[2]+x$Ecov_re[ind_m_yrs,region], diag(theta[3], length(ind_m_yrs)))
     print(dim(jac))
-    cov <- cov_full[ind,ind]
+    # if(region == 2) ind[3] <- NA #beta not estimated
+    print(paste("type: ", type))
+    print(par_index)
+    cov <- cov_full[par_index,par_index]
+    if(region == 2) cov[is.na(cov)] <- 0
     sd <- sqrt(diag(jac %*% cov %*% t(jac)))
     ind_p_yrs <- which(proj$input$years_full > max(proj$years)) #which projection years of Ecov_out_R to use
     if(type == 2){
       ind_avg_yrs <- which(proj$input$years_Ecov %in% tail(proj$years,5)) #which model years were used for average
       print(ind_p_yrs)
-      theta <- c(x$mean_rec_pars[1,1], x$Ecov_process_pars[1,1], x$Ecov_beta_R[1,1,1], x$Ecov_re[ind_avg_yrs,1])
-      ind <- match(theta, proj$env$last.par.best) #sketchy but seems to work
-      print(ind)
-      log_pred_R <- c(log_pred_R, theta[1] + theta[3] * (theta[2] + rep(mean(x$Ecov_re[ind_avg_yrs,1]),length(ind_p_yrs))))
-      jac <- c(1,theta[3], theta[2]+mean(x$Ecov_re[ind_p_yrs,1]), rep(theta[3]/5, length(ind_avg_yrs)))
+      theta <- c(x$mean_rec_pars[region,1], x$Ecov_process_pars[1,region], x$Ecov_beta_R[region,region,1], x$Ecov_re[ind_avg_yrs,region])
+      par_index <- c(index$mean_rec_pars[region,1], index$Ecov_process_pars[1,region], index$Ecov_beta_R[region,region,1], index$Ecov_re[ind_avg_yrs,region])
+      # if(region == 2) ind[3] <- NA #beta not estimated
+      log_pred_R <- c(log_pred_R, theta[1] + theta[3] * (theta[2] + rep(mean(x$Ecov_re[ind_avg_yrs,region]),length(ind_p_yrs))))
+      jac <- c(1,theta[3], theta[2]+mean(x$Ecov_re[ind_p_yrs,region]), rep(theta[3]/5, length(ind_avg_yrs)))
       jac <- matrix(jac, nrow = length(ind_p_yrs), ncol = length(jac), byrow = TRUE)
     }
     if(type == 3){
       ind_p_yrs <- which(proj$input$years_full > max(proj$years)) #which projection years of Ecov_out_R to use
       print(ind_p_yrs)
-      theta <- c(x$mean_rec_pars[1,1], x$Ecov_beta_R[1,1,1])
-      ind <- match(theta, proj$env$last.par.best) #sketchy but seems to work
-      print(ind)
-      log_pred_R <- c(log_pred_R, theta[1] + theta[2] * proj$rep$Ecov_out_R[1,ind_p_yrs,1])
-      jac <- cbind(1,proj$rep$Ecov_out_R[1,ind_p_yrs,1])
+      theta <- c(x$mean_rec_pars[region,1], x$Ecov_beta_R[region,region,1])
+      par_index <- c(index$mean_rec_pars[region,1], index$Ecov_beta_R[region,region,1])
+      # if(region == 2) ind[2] <- NA #beta not estimated
+      log_pred_R <- c(log_pred_R, theta[1] + theta[2] * proj$rep$Ecov_out_R[region,ind_p_yrs,region])
+      jac <- cbind(1,proj$rep$Ecov_out_R[region,ind_p_yrs,region])
     }
-    print(dim(jac))
-    print(length(ind))
-    cov <- cov_full[ind,ind]
+    print(paste("type: ", type))
+    print(par_index)
+    cov <- cov_full[par_index,par_index]
+    if(region == 2) cov[is.na(cov)] <- 0
     sd <- c(sd, sqrt(diag(jac %*% cov %*% t(jac))))
-    print(length(log_pred_R))
-    print(length(sd))
   }
+  print(sd)
   return(cbind(pred_R = exp(log_pred_R), cv = sd))
 }
 
+plot.catch <- function(mod, fleet_names = mod$input$fleet_names)
+{
+  years <- mod$years
+  dat = mod$env$data
+  years_full = mod$years_full
+  pred_catch = mod$rep$pred_catch
+  sigma = dat$agg_catch_sigma %*% diag(exp(mod$parList$log_catch_sig_scale), nrow = length(mod$parList$log_catch_sig_scale)) # dims: [ny,nf] x [nf]
+  catch = dat$agg_catch
+  fleets <- 1:dat$n_fleets
+  cols <- viridis::viridis_pal(option = "H")(length(fleets))
+  poly_cols <- viridis::viridis_pal(option = "H", alpha = 0.3)(length(fleets))
+  df <- cbind.data.frame(year = years, catch = c(dat$agg_catch), fleet = rep(fleet_names, each = NROW(dat$agg_catch)), obs_cv = c(dat$agg_catch_sigma),
+    pred_catch = c(mod$rep$pred_catch), region = rep(c("North", "South"), each = NROW(dat$agg_catch)*2))
+  df$lo <- df$catch*exp(qnorm(0.025)*df$obs_cv)
+  df$hi <- df$catch*exp(qnorm(0.975)*df$obs_cv)
+
+  ggplot(df, aes(x = year, y = catch)) + 
+  facet_grid(fleet~region) + ylab("Catch (mt)") + xlab("Year") +
+  geom_point() + 
+  geom_pointrange(aes(ymin = lo, ymax = hi)) + 
+  geom_line(aes(x = year, y = pred_catch))
+}
 
 plot.selectivity <- function(mod, blocks = NULL, block.names,fontfam="", od){
   dat = mod$env$data
@@ -322,21 +379,6 @@ plot.selectivity <- function(mod, blocks = NULL, block.names,fontfam="", od){
     df.selAA <- data.frame(matrix(NA, nrow=0, ncol=n_ages+2))
     colnames(df.selAA) <- c(paste0("Age_",1:n_ages),"Year","Block")
     block.names <- paste0(block.names, ": ", sel_mod,"\n(",sel_re," random effects)")
-    # block.names <- paste0("Block ",1:n_selblocks,": ", sel_mod,"\n(",sel_re," random effects)")
-    # block.fleets.indices <- lapply(blocks, function(x){
-    #   y <- dat$selblock_pointer_fleets
-    #   z <- matrix(as.integer(y == x), NROW(y), NCOL(y))
-    #   fleet_ind <- apply(z,2,any)
-    #   out <- mod$input$fleet_names[which(fleet_ind)]
-    #   y <- dat$selblock_pointer_indices
-    #   z <- matrix(as.integer(y == x), NROW(y), NCOL(y))
-    #   index_ind <- apply(z,2,any)
-    #   out <- c(out, mod$input$index_names[which(index_ind)])
-    # })
-    # include.selblock <- sapply(block.fleets.indices, length) > 0
-    # for(i in 1:n_selblocks) if(include.selblock[i]){
-    #   block.names[i] <- paste0(block.names[i], "\n", paste(block.fleets.indices[[i]], collapse = ", "))
-    # }
     for(i in blocks) {#if(include.selblock[i]){
       tmp = as.data.frame(rep$selAA[[i]])
       tmp$Year <- years
@@ -358,8 +400,6 @@ plot.selectivity <- function(mod, blocks = NULL, block.names,fontfam="", od){
     print(unique(as.character(df.plot$Block)))
     df.plot$Block <- factor(as.character(df.plot$Block), levels=block.names)
     fn <- "SelAA_tile"
-    # if(do.tex) cairo_pdf(file.path(od, paste0(fn, ".pdf")), family = fontfam, height = 10, width = 10)
-    # if(do.png) png(filename = file.path(od, paste0(fn, ".png")), width = 10*144, height = 10*144, res = 144, pointsize = 12, family = fontfam)
       print(ggplot2::ggplot(df.plot, ggplot2::aes(x=Year, y=Age, fill=Selectivity)) + 
         ggplot2::geom_tile() +
         ggplot2::scale_x_continuous(expand=c(0,0)) +
@@ -371,6 +411,324 @@ plot.selectivity <- function(mod, blocks = NULL, block.names,fontfam="", od){
           axis.title = ggplot2::element_text(size = ggplot2::rel(2)), axis.text = ggplot2::element_text(size = ggplot2::rel(2)),
           legend.title = ggplot2::element_text(size = ggplot2::rel(1.5), hjust=0.5), legend.box.just = "center",
           legend.text = ggplot2::element_text(size = ggplot2::rel(1.5))) +#, strip.text.y = element_blank()) +
-       viridis::scale_fill_viridis())
+        ggplot2::scale_fill_viridis_c(begin = 0.2, end = 0.8, option = "turbo"))
 
+}
+
+get.brp.status.results <- function(mod, static = FALSE, alpha = 0.05){
+  n_stocks <- mod$env$data$n_stocks
+  n_fleets <- mod$env$data$n_fleets
+  n_regions <- mod$env$data$n_regions
+  percentSPR = mod$env$data$percentSPR
+  n_yrs <- length(mod$years_full)
+  std <- summary(mod$sdrep, "report")
+  inds <- list()
+  inds$ssb <- matrix(c(which(rownames(std) == "log_SSB"), which(rownames(std) == "log_SSB_all")), ncol = n_stocks+1)
+  inds$full.f <- matrix(which(rownames(std) == "log_Fbar"), ncol = n_fleets + n_regions + 1)
+  inds$F.t <- matrix(which(rownames(std) == "log_Fbar_XSPR"), ncol = n_fleets + n_regions + 1)
+  inds$SSB.t <- matrix(which(rownames(std) == "log_SSB_FXSPR"), ncol = n_stocks+1)
+  if(static){
+    inds$F.t <- matrix(which(rownames(std) == "log_Fbar_XSPR_static"), nrow = length(mod$years_full), ncol = n_fleets + n_regions + 1, byrow = TRUE) #only 1 value
+    inds$SSB.t <- matrix(which(rownames(std) == "log_SSB_FXSPR_static"), nrow = length(mod$years_full), ncol = n_stocks+1, byrow=TRUE)
+  }
+  brps.f.est <- matrix(std[c(inds$F.t),1], nrow = n_yrs, ncol = NCOL(inds$full.f))
+  brps.f.cv <- matrix(std[c(inds$F.t),2], nrow = n_yrs, ncol = NCOL(inds$full.f))
+  brps.ssb.est <- matrix(std[c(inds$SSB.t),1], nrow = n_yrs, ncol = NCOL(inds$ssb))
+  brps.ssb.cv <- matrix(std[c(inds$SSB.t),2], nrow = n_yrs, ncol = NCOL(inds$ssb))
+  log.rel.f.vals <- matrix(std[c(inds$full.f),1] - std[c(inds$F.t),1], nrow = n_yrs, ncol = NCOL(inds$full.f))
+  log.rel.ssb.vals <- matrix(std[c(inds$ssb),1] - std[c(inds$SSB.t),1], nrow = n_yrs, ncol = NCOL(inds$ssb))
+  cov <- mod$sdrep$cov
+  log.rel.ssb.rel.F.cov <- lapply(1:n_yrs, function(x) {
+    K <- cbind(c(1,-1,0,0),c(0,0,1,-1))
+    f.index <- n_fleets + 1:(n_regions+1) #THIS IS NOT GENERAL, JUST FOR THIS BSB APPLICATION
+    if(length(f.index) != NCOL(inds$SSB.t)) stop("in kobe.plot function: number of stocks isn't equal to the number of regions")
+    status.cov <- lapply(1:length(f.index), \(i) {
+      ind <- c(inds$ssb[x,i],inds$SSB.t[x,i],inds$full.f[x,f.index[i]],inds$F.t[x,f.index[i]])
+      tcov <- cov[ind,ind]
+      return(t(K) %*% tcov %*% K)
+      })
+    return(status.cov)
+  })
+  if(mod$env$data$n_years_proj>0) { #check whether projecting at F40/FMSY because the ratio to status those years will be 1 and variance 0, but numerical accuracy might be an issue.
+    proj_F40 <- which(mod$env$data$proj_F_opt==3)
+    if(length(proj_F40)){
+      proj_F40 <- mod$env$data$n_years_model + proj_F40
+      proj_F40 <- which((1:n_yrs) %in% proj_F40)
+    }
+    if(length(proj_F40)){
+      log.rel.ssb.rel.F.cov[proj_F40] <- lapply(log.rel.ssb.rel.F.cov[proj_F40], function(x) {
+        out <- lapply(1:(n_regions+1), \(i) {
+          x[[i]][cbind(c(1,2,2),c(2,2,1))] <- 0
+          return(x[[i]])
+        })
+        return(out)
+      })
+    }
+  }
+  region_names <- c(mod$input$region_names, "Total")
+  for (i in 1:(n_regions+1)){
+    if(i == 1) {
+      df.brps <- cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "SSB", val = brps.ssb.est[,i], se = brps.ssb.cv[,i]) 
+      df.brps <- rbind(df.brps, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "Fbar", val = brps.f.est[,n_fleets + i], se = brps.f.cv[,n_fleets + i]))
+      df.status <- cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "SSB", val = log.rel.ssb.vals[,i], se = sqrt(sapply(log.rel.ssb.rel.F.cov, function(x) x[[i]][1,1])))
+      df.status <- rbind(df.status, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "Fbar", val = log.rel.f.vals[,i], se = sqrt(sapply(log.rel.ssb.rel.F.cov, function(x) x[[i]][2,2]))))
+    } else{
+      df.brps <- rbind(df.brps, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "SSB", val = brps.ssb.est[,i], se = brps.ssb.cv[,i]))
+      df.brps <- rbind(df.brps, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "Fbar", val = brps.f.est[,n_fleets + i], se = brps.f.cv[,n_fleets + i]))
+      df.status <- rbind(df.status, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "SSB", val = log.rel.ssb.vals[,i], se = sqrt(sapply(log.rel.ssb.rel.F.cov, function(x) x[[i]][1,1]))))
+      df.status <- rbind(df.status, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "Fbar", val = log.rel.f.vals[,i], se = sqrt(sapply(log.rel.ssb.rel.F.cov, function(x) x[[i]][2,2]))))
+    }
+  }
+  for(x in 1:n_yrs) for (i in 1:(n_regions+1)){
+    if(is.na(log.rel.f.vals[x,n_fleets +i]) | any(diag(log.rel.ssb.rel.F.cov[[x]][[i]])<0)) temp <- matrix(NA,100,2)
+    else temp <- ellipse::ellipse(log.rel.ssb.rel.F.cov[[x]][[i]], centre = c(log.rel.ssb.vals[x,i],log.rel.f.vals[x,n_fleets +i]), level = 1-alpha)
+    if(x == 1 & i == 1) {
+      df.ellipse <- cbind.data.frame(Year = mod$years_full[x], region = region_names[i], ptype = "center", x = log.rel.ssb.vals[x,i], y = log.rel.f.vals[x,n_fleets +i]) 
+    } else {
+      df.ellipse <- rbind(df.ellipse, cbind.data.frame(Year = mod$years_full[x], region = region_names[i], ptype = "center", x = log.rel.ssb.vals[x,i], y = log.rel.f.vals[x,n_fleets +i]))
+    }
+    df.ellipse <- rbind(df.ellipse, cbind.data.frame(Year = mod$years_full[x],  region = region_names[i], ptype = "ellipse", x = temp[,"x"], y = temp[,"y"]))
+  }
+  return(list(df.brps = df.brps, df.status = df.status, df.ellipse = df.ellipse))
+}
+
+kobe.plot <- function(mod, status.years=NULL, static = FALSE, regions = 1:2,single.plot = FALSE, alpha = 0.05, max.x=NULL, max.y=NULL, stock = NULL){
+  if(is.null(status.years)) {
+    status.years <- length(mod$years)
+    if(length(mod$years_full)> status.years) status.years <- c(status.years, length(mod$years_full))
+  }
+  n_stocks <- mod$env$data$n_stocks
+  n_fleets <- mod$env$data$n_fleets
+  n_regions <- mod$env$data$n_regions
+  percentSPR = mod$env$data$percentSPR
+  std <- summary(mod$sdrep, "report")
+  inds <- list()
+  inds$ssb <- matrix(c(which(rownames(std) == "log_SSB"), which(rownames(std) == "log_SSB_all")), ncol = n_stocks+1)
+  inds$full.f <- matrix(which(rownames(std) == "log_Fbar"), ncol = n_fleets + n_regions + 1)
+  inds$F.t <- matrix(which(rownames(std) == "log_Fbar_XSPR"), ncol = n_fleets + n_regions + 1)
+  inds$SSB.t <- matrix(which(rownames(std) == "log_SSB_FXSPR"), ncol = n_stocks+1)
+  if(static){
+    inds$F.t <- matrix(which(rownames(std) == "log_Fbar_XSPR_static"), nrow = length(mod$years_full), ncol = n_fleets + n_regions + 1, byrow = TRUE) #only 1 value
+    inds$SSB.t <- matrix(which(rownames(std) == "log_SSB_FXSPR_static"), nrow = length(mod$years_full), ncol = n_stocks+1, byrow=TRUE)
+  }
+  log.rel.f.vals <- matrix(std[inds$full.f[status.years,],1] - std[inds$F.t[status.years,],1], nrow = length(status.years), ncol = NCOL(inds$full.f))
+  print(status.years)
+  log.rel.ssb.vals <- matrix(std[inds$ssb[status.years,],1] - std[inds$SSB.t[status.years,],1], nrow = length(status.years), ncol = NCOL(inds$ssb))
+  cov <- mod$sdrep$cov
+  log.rel.ssb.rel.F.cov <- lapply(status.years, function(x) {
+    K <- cbind(c(1,-1,0,0),c(0,0,1,-1))
+    f.index <- n_fleets + 1:(n_regions+1) #THIS IS NOT GENERAL, JUST FOR THIS BSB APPLICATION
+    if(length(f.index) != NCOL(inds$SSB.t)) stop("in kobe.plot function: number of stocks isn't equal to the number of regions")
+    status.cov <- lapply(1:length(f.index), \(i) {
+      ind <- c(inds$ssb[x,i],inds$SSB.t[x,i],inds$full.f[x,f.index[i]],inds$F.t[x,f.index[i]])
+      tcov <- cov[ind,ind]
+      return(t(K) %*% tcov %*% K)
+      })
+    return(status.cov)
+  })
+  if(mod$env$data$n_years_proj>0) { #check whether projecting at F40/FMSY because the ratio to status those years will be 1 and variance 0, but numerical accuracy might be an issue.
+    proj_F40 <- which(mod$env$data$proj_F_opt==3)
+    if(length(proj_F40)){
+      proj_F40 <- mod$env$data$n_years_model + proj_F40
+      proj_F40 <- which(status.years %in% proj_F40)
+    }
+    if(length(proj_F40)){
+      log.rel.ssb.rel.F.cov[proj_F40] <- lapply(log.rel.ssb.rel.F.cov[proj_F40], function(x) {
+        out <- lapply(1:(n_regions+1), \(i) {
+          x[[i]][cbind(c(1,2,2),c(2,2,1))] <- 0
+          return(x[[i]])
+        })
+        return(out)
+      })
+    }
+  }
+  region_names <- c(mod$input$region_names, "Total")
+  for (i in 1:(n_regions+1)){
+    if(i == 1) {
+      df.status <- cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "SSB", val = log.rel.ssb.vals[,i], cv = sapply(log.rel.ssb.rel.F.cov, function(x) x[[i]][1,1])) 
+      df.status <- rbind(df.status, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "Fbar", val = log.rel.f.vals[,i], cv = sapply(log.rel.ssb.rel.F.cov, function(x) x[[i]][2,2])))
+    } else{
+      df.status <- rbind(df.status, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "SSB", val = log.rel.ssb.vals[,i], cv = sapply(log.rel.ssb.rel.F.cov, function(x) x[[i]][1,1])))
+      df.status <- rbind(df.status, cbind.data.frame(Year = mod$years_full, region = region_names[i], type = "Fbar", val = log.rel.f.vals[,i], cv = sapply(log.rel.ssb.rel.F.cov, function(x) x[[i]][2,2])))
+    }
+  }
+  for(x in 1:length(status.years)) for (i in 1:(n_regions+1)){
+    if(is.na(log.rel.f.vals[x,n_fleets +i]) | any(diag(log.rel.ssb.rel.F.cov[[x]][[i]])<0)) temp <- matrix(NA,100,2)
+    else temp <- ellipse::ellipse(log.rel.ssb.rel.F.cov[[x]][[i]], centre = c(log.rel.ssb.vals[x,i],log.rel.f.vals[x,n_fleets +i]), level = 1-alpha)
+    if(x == 1 & i == 1) {
+      df.ellipse <- cbind.data.frame(Year = status.years[x], region = region_names[i], ptype = "center", x = log.rel.ssb.vals[x,i], y = log.rel.f.vals[x,n_fleets +i]) 
+    } else {
+      df.ellipse <- rbind(df.ellipse, cbind.data.frame(Year = status.years[x], region = region_names[i], ptype = "center", x = log.rel.ssb.vals[x,i], y = log.rel.f.vals[x,n_fleets +i]))
+    }
+    df.ellipse <- rbind(df.ellipse, cbind.data.frame(Year = status.years[x],  region = region_names[i], ptype = "ellipse", x = temp[,"x"], y = temp[,"y"]))
+  }
+
+  print(paste0("log.rel.ssb.rel.F.cov: ", log.rel.ssb.rel.F.cov, collapse = ", "))
+  do.kobe <- which(sapply(log.rel.ssb.rel.F.cov, \(x) !all(sapply(x, \(y) !is.finite(y))))) # only if some non-infinite values for at least some status years 
+  if(length(do.kobe)<length(status.years)){
+    no.kobe <- which(!status.years %in% do.kobe)
+    print(paste0("status confidence region not available for years: ", mod$years_full[status.years[no.kobe]]))
+    if(length(do.kobe)==0) return()
+  }
+  print(paste0("do.kobe: ", do.kobe, collapse = ", "))
+  if(is.null(mod$input$region_names)) mod$input$region_names <- paste0("Region ", 1:n_regions)
+  rel.ssb.rel.F.cr <- lapply(1:length(status.years), function(x){ 
+    out <- lapply(1:(n_regions+1), \(i) {
+      if(is.na(log.rel.f.vals[x,n_fleets +i]) | any(diag(log.rel.ssb.rel.F.cov[[x]][[i]])<0)) return(matrix(NA,100,2))
+      else return(exp(ellipse::ellipse(log.rel.ssb.rel.F.cov[[x]][[i]], centre = c(log.rel.ssb.vals[x,i],log.rel.f.vals[x,n_fleets +i]), level = 1-alpha)))
+    })
+  })
+  x <- lapply(1:3, \(x) list())
+  p.status <- list(p.ssb.lo.f.lo = x, p.ssb.lo.f.hi = x, p.ssb.hi.f.lo = x, p.ssb.hi.f.hi = x)
+  for(i in 1:length(status.years)){
+    for(j in 1:(n_regions + 1)){
+      check.bad.sd <- diag(log.rel.ssb.rel.F.cov[[i]][[j]])==0 | diag(log.rel.ssb.rel.F.cov[[i]][[j]]) < 0
+      if(!any(is.na(check.bad.sd))) if(!any(check.bad.sd)){
+        p.status$p.ssb.lo.f.lo[[i]][[j]] <- mnormt::sadmvn(lower = c(-Inf,-Inf), upper = c(-log(2), 0), mean = c(log.rel.ssb.vals[i,j],log.rel.f.vals[i,n_fleets +j]), 
+          varcov = log.rel.ssb.rel.F.cov[[i]][[j]])
+        p.status$p.ssb.lo.f.hi[[i]][[j]] <- mnormt::sadmvn(lower = c(-Inf,0), upper = c(-log(2), Inf), mean = c(log.rel.ssb.vals[i,j],log.rel.f.vals[i,n_fleets +j]), 
+          varcov = log.rel.ssb.rel.F.cov[[i]][[j]])
+        p.status$p.ssb.hi.f.lo[[i]][[j]] <- mnormt::sadmvn(lower = c(-log(2),-Inf), upper = c(Inf, 0), mean = c(log.rel.ssb.vals[i,j],log.rel.f.vals[i,n_fleets +j]), 
+          varcov = log.rel.ssb.rel.F.cov[[i]][[j]])
+        p.status$p.ssb.hi.f.hi[[i]][[j]] <- mnormt::sadmvn(lower = c(-log(2),0), upper = c(Inf, Inf), mean = c(log.rel.ssb.vals[i,j],log.rel.f.vals[i,n_fleets +j]), 
+          varcov = log.rel.ssb.rel.F.cov[[i]][[j]])
+      }
+    }
+  }
+  if(is.null(max.x)) max.x <- max(sapply(rel.ssb.rel.F.cr, \(x) sapply(x, \(y) max(y[,1],na.rm = TRUE))),1.5)
+  if(is.null(max.y)) max.y <- max(sapply(rel.ssb.rel.F.cr, \(x) sapply(x, \(y) max(y[,2],na.rm = TRUE))),1.5)
+
+  # lims <- par("usr")
+  lims <- c(-1e5,1e5,-1e5,1e5)
+  print(lims)
+  tcol <- col2rgb('red')
+  tcol <- paste(rgb(tcol[1,],tcol[2,], tcol[3,], maxColorValue = 255), "55", sep = '')
+  pal <- c(topleft = tcol)
+  borders <- cbind.data.frame(region = "topleft", x = c(lims[1],0.5,0.5,lims[1]), y = c(1,1,lims[4],lims[4]))
+  tcol <- col2rgb('green')
+  tcol <- paste(rgb(tcol[1,],tcol[2,], tcol[3,], maxColorValue = 255), "55", sep = '')
+  pal <- c(pal, bottomright = tcol)
+  borders <- rbind(borders, cbind.data.frame(region = "bottomright", x = c(0.5,lims[2],lims[2],0.5), y = c(lims[3],lims[3],1,1)))
+  tcol <- col2rgb('yellow')
+  tcol <- paste(rgb(tcol[1,],tcol[2,], tcol[3,], maxColorValue = 255), "55", sep = '')
+  pal <- c(pal, topright = tcol, bottomleft = tcol)
+  borders <- rbind(borders, cbind.data.frame(region = "bottomleft", x = c(lims[1],0.5,0.5,lims[1]), y = c(lims[3],lims[3],1,1)))
+  borders <- rbind(borders, cbind.data.frame(region = "topright", x = c(0.5,lims[2],lims[2],0.5), y = c(1,1,lims[4],lims[4])))
+  p.names <- c(topleft = "p.ssb.lo.f.hi", topright = "p.ssb.hi.f.hi", bottomleft = "p.ssb.lo.f.lo", bottomright = "p.ssb.hi.f.lo")
+  print(borders)
+  print(p.names)
+  print(c(max.x, max.y))
+  print(pal)
+  if(length(do.kobe)){
+    pcols <- n_regions + 1
+    if(single.plot){
+      prows <- 1
+    } else{
+      prows <- length(do.kobe)
+    }
+    par(mfrow = c(prows,pcols), mar = c(1,1,0,0), oma = c(5,5,3,1))
+    n.plots <- 1
+    if(!single.plot) n.plots <- length(do.kobe)
+    for(k in 1:prows) for(j in 1:pcols) {
+      st.yrs.plt <- status.years[do.kobe]
+      print(st.yrs.plt)
+      plot(log.rel.ssb.vals[do.kobe[k],j],log.rel.f.vals[do.kobe[k],n_fleets +j], ylim = c(0,max.y), xlim = c(0,max.x), xlab = "", ylab = "", type = 'n', axes = F)
+      box(lwd = 2)
+      if(k > (prows-1)*pcols) axis(1, lwd = 2)
+      else axis(1, lwd = 2, labels = FALSE)
+      if((j + pcols*(k-1)) %in% seq(1,prows*pcols, pcols)) axis(2,lwd = 2)
+      else axis(2, lwd = 2, labels = FALSE)
+      for(i in 1:4){ #quadrants of kobe plot
+        df <- subset(borders, region == names(pal)[i])
+        print(paste0("i: ", i))
+        print(df)
+        polygon(df$x,df$y, border = pal[i], col = pal[i])
+        legend(names(pal)[i], legend = paste0("Year: ", mod$years_full[st.yrs.plt], ", Prob = ", 
+          round(p.status[[p.names[names(pal)[i]]]][[do.kobe[k]]][[j]],2)), bty = "n", text.font=1)
+      }
+      # stop()
+      mtext(side = 3, ifelse(j <= n_regions, mod$input$region_names[j], "Total"), line = 1)
+      print(log.rel.ssb.vals)
+      print(log.rel.f.vals)
+      print(do.kobe[k])
+      text(exp(log.rel.ssb.vals[do.kobe[k],j]),exp(log.rel.f.vals[do.kobe[k],n_fleets +j]), substr(mod$years_full[st.yrs.plt],3,4), font=1)
+      if(prows == 1) for(i in do.kobe) {
+        polygon(rel.ssb.rel.F.cr[[k]][[j]][,1], rel.ssb.rel.F.cr[[k]][[j]][,2], lwd=1)#, border = gray(0.7))
+      } else {
+        polygon(rel.ssb.rel.F.cr[[k]][[j]][,1], rel.ssb.rel.F.cr[[k]][[j]][,2], lwd=1)#, border = gray(0.7))
+      }
+    }
+    mtext(side = 1, outer = TRUE, bquote(SSB*"/"*SSB[.(percentSPR)*"%"]), line = 2)
+    mtext(side = 2, outer = TRUE, bquote(paste(italic(F),"/", italic(F)[paste(.(percentSPR),"%")])), line = 2)
+  }
+
+  return(list(p.status=p.status, rel.ssb.rel.F.cr=rel.ssb.rel.F.cr, log.rel.ssb.vals=log.rel.ssb.vals, log.rel.f.vals= log.rel.f.vals, 
+    df.ellipse = df.ellipse, borders = borders, poly.colors=pal))
+}
+
+make.status.plots <- function(mod) {
+  lims <- par("usr")
+  print(lims)
+  tcol <- col2rgb('red')
+  tcol <- paste(rgb(tcol[1,],tcol[2,], tcol[3,], maxColorValue = 255), "55", sep = '')
+  pal <- c(topleft = tcol)
+  borders <- cbind.data.frame(region = "topleft", x = c(lims[1],0.5,0.5,lims[1]), y = c(1,1,lims[4],lims[4]))
+  tcol <- col2rgb('green')
+  tcol <- paste(rgb(tcol[1,],tcol[2,], tcol[3,], maxColorValue = 255), "55", sep = '')
+  pal <- c(pal, bottomright = tcol)
+  borders <- rbind(borders, cbind.data.frame(region = "bottomright", x = c(0.5,lims[2],lims[2],0.5), y = c(lims[3],lims[3],1,1)))
+  tcol <- col2rgb('yellow')
+  tcol <- paste(rgb(tcol[1,],tcol[2,], tcol[3,], maxColorValue = 255), "55", sep = '')
+  pal <- c(pal, topright = tcol, bottomleft = tcol)
+  borders <- rbind(borders, cbind.data.frame(region = "bottomleft", x = c(lims[1],0.5,0.5,lims[1]), y = c(lims[3],lims[3],1,1)))
+  borders <- rbind(borders, cbind.data.frame(region = "topright", x = c(0.5,lims[2],lims[2],0.5), y = c(1,1,lims[4],lims[4])))
+  p.names <- c(topleft = "p.ssb.lo.f.hi", topright = "p.ssb.hi.f.hi", bottomleft = "p.ssb.lo.f.lo", bottomright = "p.ssb.hi.f.lo")
+  print(borders)
+  print(p.names)
+  print(c(max.x, max.y))
+  print(pal)
+  if(length(do.kobe)){
+    pcols <- n_regions + 1
+    if(single.plot){
+      prows <- 1
+    } else{
+      prows <- length(do.kobe)
+    }
+    par(mfrow = c(prows,pcols), mar = c(1,1,0,0), oma = c(5,5,3,1))
+    n.plots <- 1
+    if(!single.plot) n.plots <- length(do.kobe)
+    for(k in 1:prows) for(j in 1:pcols) {
+      st.yrs.plt <- status.years[do.kobe]
+      print(st.yrs.plt)
+      plot(log.rel.ssb.vals[do.kobe[k],j],log.rel.f.vals[do.kobe[k],n_fleets +j], ylim = c(0,max.y), xlim = c(0,max.x), xlab = "", ylab = "", type = 'n', axes = F)
+      box(lwd = 2)
+      if(k > (prows-1)*pcols) axis(1, lwd = 2)
+      else axis(1, lwd = 2, labels = FALSE)
+      if((j + pcols*(k-1)) %in% seq(1,prows*pcols, pcols)) axis(2,lwd = 2)
+      else axis(2, lwd = 2, labels = FALSE)
+      for(i in 1:4){ #quadrants of kobe plot
+        df <- subset(borders, region == names(pal)[i])
+        print(paste0("i: ", i))
+        print(df)
+        polygon(df$x,df$y, border = pal[i], col = pal[i])
+        legend(names(pal)[i], legend = paste0("Year: ", mod$years_full[st.yrs.plt], ", Prob = ", 
+          round(p.status[[p.names[names(pal)[i]]]][[do.kobe[k]]][[j]],2)), bty = "n", text.font=1)
+      }
+      mtext(side = 3, ifelse(j <= n_regions, mod$input$region_names[j], "Total"), line = 1)
+      print(log.rel.ssb.vals)
+      print(log.rel.f.vals)
+      print(do.kobe[k])
+      text(exp(log.rel.ssb.vals[do.kobe[k],j]),exp(log.rel.f.vals[do.kobe[k],n_fleets +j]), substr(mod$years_full[st.yrs.plt],3,4), font=1)
+      if(prows == 1) for(i in do.kobe) {
+        polygon(rel.ssb.rel.F.cr[[k]][[j]][,1], rel.ssb.rel.F.cr[[k]][[j]][,2], lwd=1)#, border = gray(0.7))
+      } else {
+        polygon(rel.ssb.rel.F.cr[[k]][[j]][,1], rel.ssb.rel.F.cr[[k]][[j]][,2], lwd=1)#, border = gray(0.7))
+      }
+    }
+    mtext(side = 1, outer = TRUE, bquote(SSB*"/"*SSB[.(percentSPR)*"%"]), line = 2)
+    mtext(side = 2, outer = TRUE, bquote(paste(italic(F),"/", italic(F)[paste(.(percentSPR),"%")])), line = 2)
+  }
+
+  return(list(p.status=p.status, rel.ssb.rel.F.cr=rel.ssb.rel.F.cr, log.rel.ssb.vals=log.rel.ssb.vals, log.rel.f.vals= log.rel.f.vals, 
+    df.ellipse = df.ellipse, borders = borders, poly.colors=pal))
 }
