@@ -164,6 +164,7 @@ theme_update(strip.background = element_blank(), strip.placement = "outside", st
       axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(2)), legend.text = element_text(size = rel(2)), #text = element_text(size = rel(2)), 
       legend.title = element_text(size = rel(2)))
 
+#Fig 6
 cairo_pdf(file.path("paper", "brp_status_results.pdf"), width = 15, height = 20)
 design <- c(area(1,1,1,1), area(2,1,2,1), area(3,1,3,1), area(4,1,4,1), area(5,1,5,1))
 	(plt_SSB40 +  xlab("")  + theme(legend.position="none", axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 

@@ -204,6 +204,7 @@ R_Exp_proj <- ggplot(this_df, aes(x = Year, y = val)) + xlab("Year") +
     geom_ribbon(data = north_proj_df, aes(ymin = lo, ymax = hi, fill = Proj_type), alpha=0.4, linetype = 0)
 R_Exp_proj
 
+#Fig. 7
 cairo_pdf(file.path("paper", "proj_ecov_Recruit_results.pdf"), width = 20, height = 20)
 design <- c(area(1,1,1,572), area(2,1,2,1000), area(3,1,3,1000))
 (BTA_proj +  xlab("")  + theme(axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
@@ -256,6 +257,8 @@ SSB_proj <- ggplot(this_df, aes(x = Year, y = val)) + xlab("Year") +
     geom_line(proj_df, mapping = aes(x = Year, y = val, colour = Proj_type)) + 
     geom_ribbon(proj_df, mapping = aes(x = Year, y = val, ymin = lo, ymax = hi, fill = Proj_type), alpha=0.4, linetype = 0)
 SSB_proj
+
+#Fig. 8
 
 cairo_pdf(file.path("paper", "proj_F_SSB.pdf"), width = 20, height = 20)
 design <- c(area(1,1,1,1), area(2,1,2,1))
@@ -310,6 +313,7 @@ cairo_pdf(file.path("paper", "proj_F40_results.pdf"), width = 20, height = 20)
 F40_proj
 dev.off()
 
+#Fig. 9
 cairo_pdf(file.path("paper", "proj_brps.pdf"), width = 24, height = 16)
 design <- c(area(1,1,1,1), area(1,2,1,2))
 (F40_proj +  xlab("Year")  + theme(legend.position="none", axis.text.x=element_text(size = rel(0.7)))) + 
@@ -336,9 +340,12 @@ SSB_status_proj <- ggplot(this_df, aes(x = Year, y = val)) + xlab("Year") +
     geom_ribbon(proj_df, mapping = aes(x = Year, y = val, ymin = lo, ymax = hi, fill = Proj_type), alpha=0.4, linetype = 0)
 SSB_status_proj
 
+################################################################
+#Fig. S13
 cairo_pdf(file.path("paper", "proj_SSB_status_results.pdf"), width = 20, height = 20)
 SSB_status_proj
 dev.off()
+################################################################
 
 
 
@@ -361,9 +368,12 @@ F_status_proj <- ggplot(this_df, aes(x = Year, y = val)) + xlab("Year") +
     geom_ribbon(proj_df, mapping = aes(x = Year, y = val, ymin = lo, ymax = hi, fill = Proj_type), alpha=0.4, linetype = 0)
 F_status_proj
 
+################################################################
+#Fig. S12
 cairo_pdf(file.path("paper", "proj_F_status_results.pdf"), width = 20, height = 20)
 F_status_proj
 dev.off()
+################################################################
 
 this_df <- subset(df_annual, name %in% c("Expected", "Random Effect") & XSPR_R_type == "Expected")
 model_df <- subset(this_df, (Region == "South" | (Region == "North" & Year <=2021)) & Proj_type == "AR1")
@@ -409,7 +419,8 @@ plt_SSB_cv <- ggplot(this_df, aes(x = Year, y = cv)) +
     ylab("CV(SSB)") + xlab("Year") + facet_grid(~ Region, labeller = labeller(Region = cnms))
 plt_SSB_cv
 
-
+############################################################################
+#Fig. S9
 cairo_pdf(file.path("paper", "R_SSB_F_cv_results.pdf"), width = 20, height = 15)
 design <- c(area(1,1,2,777), area(3,1,3,1000), area(4,1,4,1000))
 (plt_R_cv +  xlab("")  + theme(axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
@@ -417,6 +428,7 @@ design <- c(area(1,1,2,777), area(3,1,3,1000), area(4,1,4,1000))
   (plt_SSB_cv + theme(legend.position="none", strip.clip = "off", strip.text = element_text(margin=margin(t=-15)), plot.margin = margin(b = 1, t = 0))) + 
   plot_layout(design = design)
 dev.off()
+############################################################################
 
 
 this_df <- subset(df_annual, name %in% c("Expected", "Random Effect") & XSPR_R_type == "Expected")
@@ -448,9 +460,12 @@ F40_cv_proj <- ggplot(this_df, aes(x = Year, y = cv, colour = Proj_type, fill = 
     geom_line(proj_line_df, mapping = aes(x = Year, y = cv, colour = Proj_type))
 F40_cv_proj
 
+####################################################################
+#Fig. S10
 cairo_pdf(file.path("paper", "proj_F40_CV.pdf"), width = 20, height = 20)
 F40_cv_proj
 dev.off()
+####################################################################
 
 this_df <- subset(df_annual, name == "SSB(F40)")
 model_df <- subset(this_df, Year <=2021)
@@ -467,9 +482,12 @@ SSB40_cv_proj <- ggplot(this_df, aes(x = Year, y = cv, colour = Proj_type, fill 
     geom_line(proj_line_df, mapping = aes(x = Year, y = cv, colour = Proj_type))
 SSB40_cv_proj
 
+####################################################################
+#Fig. S11
 cairo_pdf(file.path("paper", "proj_SSB40_CV.pdf"), width = 20, height = 20)
 SSB40_cv_proj
 dev.off()
+####################################################################
 
 # this_df <- subset(df_annual, Year %in% 2019:2031 & name == "F_status")
 this_df <- subset(df_annual, name == "F_status")
@@ -487,9 +505,12 @@ F_status_cv_proj <- ggplot(this_df, aes(x = Year, y = cv, colour = Proj_type, fi
     geom_line(proj_line_df, mapping = aes(x = Year, y = cv, colour = Proj_type))
 F_status_cv_proj
 
+#####################################################################
+#Fig. S14
 cairo_pdf(file.path("paper", "proj_F_status_CV.pdf"), width = 20, height = 20)
 F_status_cv_proj
 dev.off()
+#####################################################################
 
 this_df <- subset(df_annual, name == "SSB_status")
 model_df <- subset(this_df, Year <=2021)
@@ -506,6 +527,8 @@ SSB_status_cv_proj <- ggplot(this_df, aes(x = Year, y = cv, colour = Proj_type, 
     geom_line(proj_line_df, mapping = aes(x = Year, y = cv, colour = Proj_type))
 SSB_status_cv_proj
 
+#####################################################################
+#Fig. S15
 cairo_pdf(file.path("paper", "proj_SSB_status_CV.pdf"), width = 20, height = 20)
 SSB_status_cv_proj
 dev.off()
@@ -659,53 +682,3 @@ abline(v=2021, lty = 3, lwd = 2)
 mtext(side = 1, line = 2, "Year", cex = 2, outer = TRUE)
 dev.off()
 
-brp_results <- lapply(c(proj_R1,proj_R3), get.brp.status.results)
-# x <- brp_results[[1]]
-# c("SSB_status", "F_status")[match(x$df.status$type, c("SSB","Fbar"))]
-# x$df.status
-
-df_annual <- rbind(df_annual, cbind.data.frame(Year = c(sapply(brp_results, \(x) c(x$df.status$Year))),
-  val = exp(c(sapply(brp_results, \(x) x$df.status$val))),
-  cv = c(sapply(brp_results, \(x) x$df.status$se)),
-  name = c(sapply(brp_results, \(x) c("SSB_status", "F_status")[match(x$df.status$type, c("SSB","Fbar"))])),
-  Region = c(sapply(brp_results, \(x) x$df.status$region)),
-  Proj_type = rep(c("AR1", "Last", "Linear"), each = NROW(brp_results[[1]]$df.status)), 
-  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 3*NROW(brp_results[[1]]$df.status))))
-
-df_annual$lo <- df_annual$val*exp(-qnorm(0.975)*df_annual$cv)
-df_annual$hi <- df_annual$val*exp(qnorm(0.975)*df_annual$cv)
-
-est <-TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Est")
-se <-TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Std.")
-proj_df <- cbind.data.frame(year = proj[[1]]$years_full, 
-  val = exp(c(est$log_SSB, est$log_SSB_all)), cv = c(se$log_SSB, se$log_SSB_all),
-  region = rep(c("North", "South", "Total"), each = length(proj[[1]]$years_full)),
-  proj_type = "Continue")
-est <-TMB:::as.list.sdreport(proj[[2]]$sdrep, report = TRUE, what = "Est")
-se <-TMB:::as.list.sdreport(proj[[2]]$sdrep, report = TRUE, what = "Std.")
-proj_df <- rbind(proj_df, cbind.data.frame(year = proj[[2]]$years_full, 
-  val = exp(c(est$log_SSB, est$log_SSB_all)), cv = c(se$log_SSB, se$log_SSB_all),
-  region = rep(c("North", "South", "Total"), each = length(proj[[2]]$years_full)),
-  proj_type = "Average"))
-est <-TMB:::as.list.sdreport(proj[[3]]$sdrep, report = TRUE, what = "Est")
-se <-TMB:::as.list.sdreport(proj[[3]]$sdrep, report = TRUE, what = "Std.")
-proj_df <- rbind(proj_df, cbind.data.frame(year = proj[[3]]$years_full, 
-  val = exp(c(est$log_SSB, est$log_SSB_all)), cv = c(se$log_SSB, se$log_SSB_all),
-  region = rep(c("North", "South", "Total"), each = length(proj[[3]]$years_full)),
-  proj_type = "Trend"))
-
-proj_df$lo <- proj_df$val*exp(qnorm(0.025)*proj_df$cv)
-proj_df$hi <- proj_df$val*exp(qnorm(0.025)*proj_df$cv)
-
-this_df <- subset(proj_df, year %in% 2019:2031)
-ggplot(this_df, aes(x = year, y = val)) + geom_line(aes(colour = proj_type)) + facet_grid(~region)
-
-
-temp$SSB_N <- proj[[1]]$rep$NAA[1,1,,1]/1000
-temp$predR1 <- proj[[1]]$rep$pred_NAA[1,1,,1]/1000
-temp$R1.cv <- TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Std")$log_NAA_rep[1,1,,1]
-
-temp$SSB <- 
-#plot how R and pred R come together in projection period
-#plot different projections of pred R
-#plot time series of pred R and Ecov with color gradient f(Ecov)

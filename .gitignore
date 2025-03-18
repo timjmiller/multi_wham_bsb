@@ -1,5 +1,6 @@
-paper/bsb_movement_diagram.pptx
+*.pptx
 results
 .Rproj.user
 *.Rproj
 lit
+*.docx

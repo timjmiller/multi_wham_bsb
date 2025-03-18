@@ -21,7 +21,8 @@ input_0 <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_in
 
 fit_0 <- fit_wham(input_0, do.brps = FALSE, do.sdrep = FALSE, do.osa = FALSE, do.retro = FALSE)
 saveRDS(fit_0, here::here("results", "fit_0_rev.RDS"))
-# fit_0 <- readRDS(here::here("results", "fit_0_rev.RDS"))
+
+#Do jitter for null model
 res_dir <- here::here("results","jitter", "fit_0")
 dir.create(res_dir)
 fit_0_jit_res <- jitter_wham(fit_RDS = here::here("results","fit_0_rev.RDS"), n_jitter = 50, res_dir = res_dir)
@@ -35,9 +36,6 @@ saveRDS(fit_0_jit_res, here::here(res_dir, "fit_0_jitter_results.RDS"))
 # initial_vals <- t(sapply(1:50, function(x) fit_0$opt$par + chol.L %*% cbind(rnorm(n= NCOL(cov)))))
 ####################
 
-jitters <- fit_0_jit_res[[1]]
-sort(sapply(jitters, \(x) x$obj))
-y <- order(sapply(jitters, \(x) x$obj))
 
 input_0_better <- fit_0$input
 input_0_better$par <- fit_0$env$parList(jitters[[13]]$par)
@@ -63,6 +61,10 @@ input_1$par <- fit_0$parList
 fit_1 <- fit_wham(input_1, do.brps = FALSE, do.sdrep = FALSE, do.osa = FALSE, do.retro = FALSE)
 saveRDS(fit_1, here::here("results", "fit_1.RDS"))
 
+res_dir <- here::here("results","jitter", "fit_1")
+dir.create(res_dir)
+fit_1_jit_res <- jitter_wham(fit_RDS = here::here("results","fit_1.RDS"), n_jitter = 50, res_dir = res_dir)
+saveRDS(fit_1_jit_res, here::here(res_dir, "fit_1_jitter_results.RDS"))
 
 for(i in 2:6){
 	assign(paste0("input_",i), prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = get(paste0("ecov_", i)), catch_info = catch_info,
@@ -83,18 +85,7 @@ fits <- lapply(fits, make_osa_residuals)
 saveRDS(fits, here("results", paste0("fits_no_M_re_rev.RDS")))
 parLists_fits <- lapply(fits, function(x) x$parList)
 saveRDS(parLists_fits, here::here("results", paste0("parLists_no_M_re_rev.RDS")))
-
 saveRDS(fits[[2]], here::here("results", "fit_1.RDS"))
-
-res_dir <- here::here("results","jitter", "fit_1")
-dir.create(res_dir)
-fit_1_jit_res <- jitter_wham(fit_RDS = here::here("results","fit_1.RDS"), n_jitter = 50, res_dir = res_dir)
-saveRDS(fit_1_jit_res, here::here(res_dir, "fit_1_jitter_results.RDS"))
-
-jitters <- fit_1_jit_res[[1]]
-sort(sapply(jitters, \(x) x$obj))
-y <- order(sapply(jitters, \(x) x$obj))
-sapply(jitters, \(x) max(abs(x$grad)))[y]
 
 input_M_re_0 <- prepare_wham_input(asap, selectivity = sel, NAA_re = NAA_re, basic_info = basic_info, move = move, ecov = ecov, catch_info = catch_info,
 	index_info = index_info, age_comp = age_comp, M = M_list)

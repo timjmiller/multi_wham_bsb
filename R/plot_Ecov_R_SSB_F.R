@@ -64,9 +64,12 @@ p_E_full <- ggplot(this_df, aes(x = Year, y = val, colour = name, fill = name)) 
     geom_ribbon(data =  subset(this_df, name == "Random Effect"), aes(ymin=lo, ymax=hi, fill = name), alpha=0.4, linetype = 0) 
 p_E_full
 
+###########################################################################################
+# Fig. S4
 cairo_pdf(file.path("paper", "BTA_full_fig.pdf"), width = 20, height = 10)
 p_E_full
 dev.off()
+###########################################################################################
 
 this_df <- subset(df_use, Year > 1988 & Year < 2022 & name %in% c("Ecov_obs", "Ecov_RE"))
 this_df$name <- c("Random Effect", "Observed")[match(this_df$name, c("Ecov_RE","Ecov_obs"))]
@@ -132,6 +135,8 @@ plt_F <- ggplot(this_df, aes(x = Year, y = val)) +
 plt_F
 
 
+###########################################################################################
+# Fig. 4
 cairo_pdf(file.path("paper", "E_R_SSB_F_fig.pdf"), width = 20, height = 16)
 design <- c(area(1,1,1,778), area(2,1,2,778), area(3,1,3,1000), area(4,1,4,1000))
 (p_E +  xlab("")  + theme(axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
@@ -140,3 +145,4 @@ design <- c(area(1,1,1,778), area(2,1,2,778), area(3,1,3,1000), area(4,1,4,1000)
   (plt_F + theme(legend.position="none", strip.clip = "off", strip.text = element_text(margin=margin(t=-15)), plot.margin = margin(b = 1, t = 0))) + 
   plot_layout(design = design)
 dev.off()
+###########################################################################################
