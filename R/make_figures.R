@@ -3,7 +3,8 @@ library(rnaturalearth)
 library(maps)
 library(sp)
 library(sf)
-library(wham)
+library("wham", lib.loc = "c:/work/wham/old_packages/53e236b")
+# library(wham)
 library(ggplot2)
 library(dplyr)
 library(patchwork)
@@ -11,8 +12,8 @@ library(patchwork)
 source(here::here("R","plot_functions.R"))
 
 #load fits
-fits <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))
-fits_M_re <- readRDS(file.path("results","fits_M_re_better.RDS"))
+fits <- readRDS(file.path("results","fits_no_M_re_rev_1.RDS"))
+fits_M_re <- readRDS(file.path("results","fits_M_re_best.RDS"))
 
 ##############################################################################################
 
@@ -76,6 +77,8 @@ dlogitnorm <- function(x, p, sigma){
   return(fx)
 }
 
+fit1 <- readRDS(here::here("results","fit_1.RDS")) #M_1
+
 cairo_pdf(file.path("paper", "move_prior_post.pdf"), width = 7, height = 11)
 par(mfrow = c(2,1), mar = c(4,4,1,1), oma = c(1,1,1,1))
 ps <- seq(0,0.1,0.001)
@@ -105,7 +108,7 @@ sapply(c(fits,fits_M_re), \(x) x$rep$mu[1,8,1,1,2,1])
 #plot selectivity at time and age for blocks with RE.
 source(here::here("R","plot_functions.R"))
 cairo_pdf(file.path("paper", "selectivity_re_plot.pdf"), width = 16, height = 12)
-plot.selectivity(fits[[2]], blocks = c(1:2,5:6), block.names = c("North Commercial Fleet", "North Recreational Fleet", "North Recreational Catch/Effort Index", "North Spring Index"))
+plot.selectivity(fit1, blocks = c(1:2,5:6), block.names = c("North Commercial Fleet", "North Recreational Fleet", "North Recreational Catch/Effort Index", "North Spring Index"))
 dev.off()
 
 
@@ -117,7 +120,7 @@ dev.off()
 
 
 cairo_pdf(file.path("paper", paste0("Ecov.pdf")), height = 10, width = 10)
-plot.ecov(fits[[2]])
+plot.ecov(fit1)
 legend("topleft", legend = c("North", "South"), col = mypalette(2), lty =  1, pch = 19)
 dev.off()
 
@@ -164,9 +167,12 @@ x <- summarize_res_fn(c(fits, fits_M_re), rep_name = "log_NAA_rep")
 
 make_df <- function(fits, rep_name = "log_SSB", label = "SSB", age = 1){
   df <- cbind.data.frame(year = numeric(), model = character(), stock = character(), SSB = numeric(), lo = numeric(),hi = numeric())
-  summary_N <- summarize_res_fn(fits, rep_name = rep_name, index = 1)
+  indices <- 1:2
+  if(rep_name == "log_Fbar") indices <- indices + 4 #4 fleets, 2 regions, 1 total
+  print(indices)
+  summary_N <- summarize_res_fn(fits, rep_name = rep_name, index = indices[1])
   print(NCOL(summary_N$Est))
-  summary_S <- summarize_res_fn(fits, rep_name = rep_name, index = 2)
+  summary_S <- summarize_res_fn(fits, rep_name = rep_name, index = indices[2])
   mods <- paste0("$\\textit{M}_{",1:NCOL(summary_N$Est) - 1,"}$")
   print(mods)
   for(i in 1:NCOL(summary_N$Est)){
@@ -229,10 +235,135 @@ dev.off()
 ###############################################
 
 
+#reference points
+#R1 = annual NAA, R3 = annual pred_NAA
+
+proj_R1 <- lapply(1:3, \(x) readRDS(here::here("results",paste0("m1_proj_",x,"_R_opt1.RDS"))))
+proj_R3 <- lapply(1:3, \(x) readRDS(here::here("results",paste0("m1_proj_",x,"_R_opt3.RDS"))))
+
+se_R1 <- lapply(proj_R1, \(x) TMB:::as.list.sdreport(x$sdrep, what = "Std", report = TRUE))
+se_R3 <- lapply(proj_R3, \(x) TMB:::as.list.sdreport(x$sdrep, what = "Std", report = TRUE))
+ny_full <- length(proj_R3[[1]]$years_full)
+df_brps <- cbind.data.frame(Year = proj_R3[[1]]$years_full, 
+  val = exp(c(sapply(c(proj_R1,proj_R3), \(x) c(x$rep$log_SSB_FXSPR)))),
+  cv = c(sapply(c(se_R1,se_R3), \(x) c(x$log_SSB_FXSPR))),
+  # val = exp(c(sapply(paste0("proj_",1:3,"_R", rep(c(1,3),each = 3)), \(x) c(get(x)$rep$log_SSB_FXSPR)))),
+  name = "SSB(F40)",
+  Region = rep(c("North","South","Total"), each = ny_full),
+  Proj_type = rep(c("AR1", "Last", "Linear"), each = 3*ny_full), 
+  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 3*3*ny_full))
+df_brps <- rbind(df_brps, cbind.data.frame(Year = proj_R3[[1]]$years_full, 
+  val = exp(c(sapply(c(proj_R1,proj_R3), \(x) c(x$rep$log_Fbar_XSPR[,5:7])))),
+  cv = c(sapply(c(se_R1,se_R3), \(x) c(x$log_Fbar_XSPR[,5:7]))),
+  name = "F40",
+  Region = rep(c("North","South","Total"), each = ny_full),
+  Proj_type = rep(c("AR1", "Last", "Linear"), each = 3*ny_full), 
+  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 3*3*ny_full)))
+df_brps <- rbind(df_brps, cbind.data.frame(Year = proj_R3[[1]]$years_full, 
+  val = c(sapply(c(proj_R1,proj_R3), \(x) c(x$rep$NAA[1,1,,1],x$rep$NAA[2,2,,1]))),
+  cv = c(sapply(c(se_R1,se_R3), \(x) c(x$log_NAA_rep[1,1,,1],x$log_NAA_rep[2,2,,1]))),
+  name = "Random Effect",
+  Region = rep(c("North","South"), each = ny_full),
+  Proj_type = rep(c("AR1", "Last", "Linear"), each = 2*ny_full), 
+  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 2*3*ny_full)))
+
+dim(subset(x, Proj_type == "Last" & Region == "North" & Year < 2022))
+
+# fjp <- list() 
+# for(i in 1:3) fjp[[i]] <- readRDS(here::here("results",paste0("m1_proj_",i,"_sdrep_fjp.RDS")))
+
+
+# #have to do se(predR) by hand
+# source(here::here("R","plot_functions.R"))
+# temp <- make_pred_R_cv(proj_R3[[1]], fjp[[1]], type = 1)
+# temp <- rbind(temp, make_pred_R_cv(proj_R3[[1]], fjp[[1]], type = 1, region = 2))
+# temp <- rbind(temp,make_pred_R_cv(proj_R3[[2]], fjp[[2]], type = 2))
+# temp <- rbind(temp,make_pred_R_cv(proj_R3[[2]], fjp[[2]], type = 2, region = 2))
+# temp <- rbind(temp,make_pred_R_cv(proj_R3[[3]], fjp[[3]], type = 3))
+# temp <- rbind(temp,make_pred_R_cv(proj_R3[[3]], fjp[[3]], type = 3, region = 2))
+
+temp <- make_pred_R_cv(proj_R3[[1]], type = 1)
+temp <- rbind(temp, make_pred_R_cv(proj_R3[[1]], type = 1, region = 2))
+temp <- rbind(temp,make_pred_R_cv(proj_R3[[2]], type = 2))
+temp <- rbind(temp,make_pred_R_cv(proj_R3[[2]], type = 2, region = 2))
+temp <- rbind(temp,make_pred_R_cv(proj_R3[[3]], type = 3))
+temp <- rbind(temp,make_pred_R_cv(proj_R3[[3]], type = 3, region = 2))
+
+df_brps <- rbind(df_brps, cbind.data.frame(Year = proj_R3[[1]]$years_full, 
+  val = temp[,1],
+  cv = temp[,2],
+  name = "Expected",
+  Region = rep(c("North","South"), each = ny_full),
+  Proj_type = rep(c("AR1", "Last", "Linear"), each = 2*ny_full), 
+  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 2*3*ny_full)))
+
+df_brps$lo <- df_brps$val*exp(-qnorm(0.975)*df_brps$cv)
+df_brps$hi <- df_brps$val*exp(qnorm(0.975)*df_brps$cv)
+
+saveRDS(df_brps, here::here("results", "df_brps_rev.RDS"))
+
+
+this_df <- subset(df_brps, Proj_type == "Last" & Year < 2022)
+library(ggplot2)  
+plt_R <- ggplot(subset(this_df, XSPR_R_type == "Random Effect" & name %in% c("Random Effect", "Expected")), aes(x = Year, y = val, colour = name)) + 
+    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo") + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo") +  
+    labs(color = "Recruitment Type", fill = "Recruitment Type") +
+    geom_point(size = 2) + geom_line()  + ylab("Recruitment (1000s)") + xlab("Year") +
+    facet_grid(~ Region) + coord_cartesian(ylim = c(0,1.25e5)) +#ylim(0,1e5) + #xlim(1989,2021)
+    geom_ribbon(ggplot2::aes(ymin=lo, ymax=hi, fill=name), alpha=0.3, linetype = 0)
+plt_R
+
+cnms <- c(North = "", South = "", Total = "Total")
+plt_SSB40 <- ggplot(subset(this_df, name == "SSB(F40)"), aes(x = Year, y = val, colour = XSPR_R_type)) + 
+    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo") + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo") +  
+    labs(color = "Recruitment Type", fill = "Recruitment Type") +
+    geom_point(size = 2) + geom_line()  + ylab(expression(SSB(italic(F)[ "40%"])~"(mt)")) + xlab("Year") +
+    facet_grid(~ Region, labeller = labeller(Region = cnms)) + coord_cartesian(ylim = c(0,6e4)) +#ylim(0,1e5) + #xlim(1989,2021)
+    geom_ribbon(ggplot2::aes(ymin=lo, ymax=hi, fill=XSPR_R_type), alpha=0.3, linetype = 0)
+plt_SSB40
+
+cnms <- c(North = "", South = "", Total = "")
+plt_F40 <- ggplot(subset(this_df, name == "F40"), aes(x = Year, y = val, colour = XSPR_R_type)) + 
+    # scale_colour_viridis_d(begin = 0.2, end = 0.8) + scale_fill_viridis_d(begin = 0.2, end = 0.8) + 
+    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo") + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo") + 
+    labs(color = "Recruitment Type", fill = "Recruitment Type") +
+    geom_point(size = 2) + geom_line()  + ylab(expression(bar(italic(F))[ "40%"])) + xlab("Year") +
+    facet_grid(~ Region, labeller = labeller(Region = cnms)) + 
+    geom_ribbon(ggplot2::aes(ymin=lo, ymax=hi, fill=XSPR_R_type), alpha=0.3, linetype = 0)
+plt_F40
+
+plt_R + plt_SSB40 + plot_layout(ncol = 2)
+
+
+cairo_pdf(file.path("paper", "brp_results.pdf"), width = 20, height = 12)
+design <- c(area(1,1,1,781), area(2,1,2,1000), area(3,1,3,1000))
+(plt_R +  xlab("")  + theme(axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
+  (plt_SSB40 + xlab("")  + theme(strip.clip = "off", strip.text=element_text(margin=margin(b = 5, t=-20)), axis.title.x = element_blank(), legend.position="none",axis.text.x=element_blank(), plot.margin = margin(t = 0, b = 1))) + 
+  (plt_F40 + theme(legend.position="none", strip.clip = "off", strip.text = element_text(margin=margin(t=-15)), plot.margin = margin(b = 1, t = 0))) + 
+  plot_layout(design = design)
+dev.off()
+
+# source(here::here("R","plot_functions.R"))
+# x <- kobe.plot(proj, status.years = length(proj$years), static = FALSE)
+# df <- x$df.ellipse
+
+# source(here::here("R","plot_functions.R"))
+# x <- get.status.results(proj)
+# y <- get.status.results(proj, static = TRUE)
+
+# ggplot(x$borders, aes(x = x, y = y, fill = region)) + 
+#     geom_polygon() + coord_cartesian(ylim = c(0, max(x$borders$y)), xlim = c(0,max(x$borders$x))) + 
+#     scale_fill_manual(values = x$poly.colors) + theme(legend.position="none")
+# df <- x$df.ellipse
+# df$ptype <- factor(df$ptype)
+# df$region <- factor(df$region)
+#   gg.kobe <- ggplot(df, aes(x = x, y = y)) + facet_grid(~region)+ 
+#     geom_polygon(subset(x$df.ellipse, ptype == "ellipse"), aes(x = x, y = y)) + 
+
 
 ###############################################
 # Ecov effects on M and R
-fit_3 <- readRDS(file.path("results","fits_M_re_better.RDS"))[[5]]
+fit_3 <- readRDS(file.path("results","fits_M_re_best.RDS"))[[5]]
 Ecov <- fit_3$rep$Ecov_out_M[1,1,1,,][,1]
 M_out <- fit_3$rep$MAA[1,1,,1]
 ord <- order(Ecov)
@@ -244,12 +375,12 @@ pal <- viridis::viridis_pal(option = "H")(length(ord))
 df <- cbind.data.frame(M=M, Temperature  = Ecov_plt, group = 1)
 df <- rbind(df, cbind.data.frame(M = M_out, Temperature = Ecov, group = 2))
 plt <- ggplot(df, aes(Temperature, M, colour = Temperature)) +
-  geom_line(data = subset(df, group == 1), size = 1.2) +
+  geom_line(data = subset(df, group == 1), linewidth = 1.2) +
   geom_point(data = subset(df, group == 2)) + 
   scale_colour_gradientn(colours = pal)
 
-fit0 <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))[[1]]
-fit1 <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))[[2]]
+fit0 <- readRDS(file.path("results","fits_no_M_re_rev_1.RDS"))[[1]]
+fit1 <- readRDS(file.path("results","fits_no_M_re_rev_1.RDS"))[[2]]
 R_out <- fit1$rep$NAA[1,1,,1]
 Ecov <- fit1$rep$Ecov_out_R[1,,1]
 ord <- order(Ecov)
@@ -264,7 +395,7 @@ abline(0,1)
 plot(fit1$years[-1], fit1$rep$pred_NAA[1,1,-1,1], ylab = "Expected Recruitment (1000s)", xlab = "Year", type = 'l')
 lines(fit1$years[-1], fit0$rep$pred_NAA[1,1,-1,1], col = "gray")
 
-df_brps <- readRDS(here::here("results", "df_brps.RDS"))
+df_brps <- readRDS(here::here("results", "df_brps_rev.RDS"))
 R_df <- subset(df_brps, Proj_type == "Last" & Year < 2022 & XSPR_R_type == "Random Effect" & name %in% c("Random Effect", "Expected"))
 R_df[,"BT"] <- c(fits[[2]]$rep$Ecov_out_R[1,,1],fits[[2]]$rep$Ecov_out_R[2,,2])
 R_df_N <- subset(R_df, Region =="North")
@@ -365,8 +496,9 @@ make_df <- function(results_files, types, fit){
   return(df)
 }
 
+fit_1 <- readRDS(here::here("results","fit_1.RDS"))
 res_files <- here::here("results","self_test", c("fit_1", "fit_1_fix"), "self_test_results.RDS")
-self_test_df <- make_df(res_files, types = c("Index CV Est", "Index CV Fix"), fit1)
+self_test_df <- make_df(res_files, types = c("Index CV Est", "Index CV Fix"), fit_1)
 # self_test_df$type <- factor(self_test_df$type, levels = c("ML", "REML", "Low Error"))
 library(ggplot2)
 plt <- ggplot(self_test_df, aes(x = year, y = median_y)) + scale_colour_viridis_d() + 
@@ -407,126 +539,6 @@ theme_update(strip.background = element_blank(), strip.placement = "outside", st
 cairo_pdf(file.path("paper", "catch_plot.pdf"), width = 16, height = 16)
 plot.catch(fits[[2]])
 dev.off()
-
-########################################
-
-#reference points
-#R1 = annual NAA, R3 = annual pred_NAA
-
-proj_R1 <- lapply(1:3, \(x) readRDS(here::here("results",paste0("m1_proj_",x,"_R_opt1.RDS"))))
-proj_R3 <- lapply(1:3, \(x) readRDS(here::here("results",paste0("m1_proj_",x,"_R_opt3.RDS"))))
-
-se_R1 <- lapply(proj_R1, \(x) TMB:::as.list.sdreport(x$sdrep, what = "Std", report = TRUE))
-se_R3 <- lapply(proj_R3, \(x) TMB:::as.list.sdreport(x$sdrep, what = "Std", report = TRUE))
-ny_full <- length(proj_R3[[1]]$years_full)
-df_brps <- cbind.data.frame(Year = proj_R3[[1]]$years_full, 
-  val = exp(c(sapply(c(proj_R1,proj_R3), \(x) c(x$rep$log_SSB_FXSPR)))),
-  cv = c(sapply(c(se_R1,se_R3), \(x) c(x$log_SSB_FXSPR))),
-  # val = exp(c(sapply(paste0("proj_",1:3,"_R", rep(c(1,3),each = 3)), \(x) c(get(x)$rep$log_SSB_FXSPR)))),
-  name = "SSB(F40)",
-  Region = rep(c("North","South","Total"), each = ny_full),
-  Proj_type = rep(c("AR1", "Last", "Linear"), each = 3*ny_full), 
-  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 3*3*ny_full))
-df_brps <- rbind(df_brps, cbind.data.frame(Year = proj_R3[[1]]$years_full, 
-  val = exp(c(sapply(c(proj_R1,proj_R3), \(x) c(x$rep$log_Fbar_XSPR[,5:7])))),
-  cv = c(sapply(c(se_R1,se_R3), \(x) c(x$log_Fbar_XSPR[,5:7]))),
-  name = "F40",
-  Region = rep(c("North","South","Total"), each = ny_full),
-  Proj_type = rep(c("AR1", "Last", "Linear"), each = 3*ny_full), 
-  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 3*3*ny_full)))
-df_brps <- rbind(df_brps, cbind.data.frame(Year = proj_R3[[1]]$years_full, 
-  val = c(sapply(c(proj_R1,proj_R3), \(x) c(x$rep$NAA[1,1,,1],x$rep$NAA[2,2,,1]))),
-  cv = c(sapply(c(se_R1,se_R3), \(x) c(x$log_NAA_rep[1,1,,1],x$log_NAA_rep[2,2,,1]))),
-  name = "Random Effect",
-  Region = rep(c("North","South"), each = ny_full),
-  Proj_type = rep(c("AR1", "Last", "Linear"), each = 2*ny_full), 
-  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 2*3*ny_full)))
-
-dim(subset(x, Proj_type == "Last" & Region == "North" & Year < 2022))
-
-fjp <- list() 
-for(i in 1:3) fjp[[i]] <- readRDS(here::here("results",paste0("m1_proj_",i,"_sdrep_fjp.RDS")))
-
-
-#have to do se(predR) by hand
-source(here::here("R","plot_functions.R"))
-temp <- make_pred_R_cv(proj_R3[[1]], fjp[[1]], type = 1)
-temp <- rbind(temp, make_pred_R_cv(proj_R3[[1]], fjp[[1]], type = 1, region = 2))
-temp <- rbind(temp,make_pred_R_cv(proj_R3[[2]], fjp[[2]], type = 2))
-temp <- rbind(temp,make_pred_R_cv(proj_R3[[2]], fjp[[2]], type = 2, region = 2))
-temp <- rbind(temp,make_pred_R_cv(proj_R3[[3]], fjp[[3]], type = 3))
-temp <- rbind(temp,make_pred_R_cv(proj_R3[[3]], fjp[[3]], type = 3, region = 2))
-
-df_brps <- rbind(df_brps, cbind.data.frame(Year = proj_R3[[1]]$years_full, 
-  val = temp[,1],
-  cv = temp[,2],
-  name = "Expected",
-  Region = rep(c("North","South"), each = ny_full),
-  Proj_type = rep(c("AR1", "Last", "Linear"), each = 2*ny_full), 
-  XSPR_R_type = rep(c("Random Effect", "Expected"), each = 2*3*ny_full)))
-
-df_brps$lo <- df_brps$val*exp(-qnorm(0.975)*df_brps$cv)
-df_brps$hi <- df_brps$val*exp(qnorm(0.975)*df_brps$cv)
-
-saveRDS(df_brps, here::here("results", "df_brps.RDS"))
-
-
-this_df <- subset(df_brps, Proj_type == "Last" & Year < 2022)
-library(ggplot2)  
-plt_R <- ggplot(subset(this_df, XSPR_R_type == "Random Effect" & name %in% c("Random Effect", "Expected")), aes(x = Year, y = val, colour = name)) + 
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo") + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo") +  
-    labs(color = "Recruitment Type", fill = "Recruitment Type") +
-    geom_point(size = 2) + geom_line()  + ylab("Recruitment (1000s)") + xlab("Year") +
-    facet_grid(~ Region) + coord_cartesian(ylim = c(0,1.25e5)) +#ylim(0,1e5) + #xlim(1989,2021)
-    geom_ribbon(ggplot2::aes(ymin=lo, ymax=hi, fill=name), alpha=0.3, linetype = 0)
-plt_R
-
-cnms <- c(North = "", South = "", Total = "Total")
-plt_SSB40 <- ggplot(subset(this_df, name == "SSB(F40)"), aes(x = Year, y = val, colour = XSPR_R_type)) + 
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo") + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo") +  
-    labs(color = "Recruitment Type", fill = "Recruitment Type") +
-    geom_point(size = 2) + geom_line()  + ylab(expression(SSB(italic(F)[ "40%"])~"(mt)")) + xlab("Year") +
-    facet_grid(~ Region, labeller = labeller(Region = cnms)) + coord_cartesian(ylim = c(0,6e4)) +#ylim(0,1e5) + #xlim(1989,2021)
-    geom_ribbon(ggplot2::aes(ymin=lo, ymax=hi, fill=XSPR_R_type), alpha=0.3, linetype = 0)
-plt_SSB40
-
-cnms <- c(North = "", South = "", Total = "")
-plt_F40 <- ggplot(subset(this_df, name == "F40"), aes(x = Year, y = val, colour = XSPR_R_type)) + 
-    # scale_colour_viridis_d(begin = 0.2, end = 0.8) + scale_fill_viridis_d(begin = 0.2, end = 0.8) + 
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo") + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo") + 
-    labs(color = "Recruitment Type", fill = "Recruitment Type") +
-    geom_point(size = 2) + geom_line()  + ylab(expression(bar(italic(F))[ "40%"])) + xlab("Year") +
-    facet_grid(~ Region, labeller = labeller(Region = cnms)) + 
-    geom_ribbon(ggplot2::aes(ymin=lo, ymax=hi, fill=XSPR_R_type), alpha=0.3, linetype = 0)
-plt_F40
-
-plt_R + plt_SSB40 + plot_layout(ncol = 2)
-
-
-cairo_pdf(file.path("paper", "brp_results.pdf"), width = 20, height = 12)
-design <- c(area(1,1,1,781), area(2,1,2,1000), area(3,1,3,1000))
-(plt_R +  xlab("")  + theme(axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
-  (plt_SSB40 + xlab("")  + theme(strip.clip = "off", strip.text=element_text(margin=margin(b = 5, t=-20)), axis.title.x = element_blank(), legend.position="none",axis.text.x=element_blank(), plot.margin = margin(t = 0, b = 1))) + 
-  (plt_F40 + theme(legend.position="none", strip.clip = "off", strip.text = element_text(margin=margin(t=-15)), plot.margin = margin(b = 1, t = 0))) + 
-  plot_layout(design = design)
-dev.off()
-
-source(here::here("R","plot_functions.R"))
-x <- kobe.plot(proj, status.years = length(proj$years), static = FALSE)
-df <- x$df.ellipse
-
-source(here::here("R","plot_functions.R"))
-x <- get.status.results(proj)
-y <- get.status.results(proj, static = TRUE)
-
-ggplot(x$borders, aes(x = x, y = y, fill = region)) + 
-    geom_polygon() + coord_cartesian(ylim = c(0, max(x$borders$y)), xlim = c(0,max(x$borders$x))) + 
-    scale_fill_manual(values = x$poly.colors) + theme(legend.position="none")
-df <- x$df.ellipse
-df$ptype <- factor(df$ptype)
-df$region <- factor(df$region)
-  gg.kobe <- ggplot(df, aes(x = x, y = y)) + facet_grid(~region)+ 
-    geom_polygon(subset(x$df.ellipse, ptype == "ellipse"), aes(x = x, y = y)) + 
 
 ###################################################################
 #Ecov, R, SSB, F same figure
@@ -619,7 +631,7 @@ p_ecov <- ggplot(df_ecov_all, aes(x = year, y = est, colour = Type, fill = Type)
     geom_line(data = df_ecov_all_pred, aes(x = year, y = est, colour = Type)) + geom_ribbon(data = df_ecov_all_pred, aes(ymin=lo, ymax=hi, fill = Type), alpha=0.4, linetype = 0) 
 p_ecov
 
-df_brps <- readRDS(here::here("results", "df_brps.RDS"))
+df_brps <- readRDS(here::here("results", "df_brps_rev.RDS"))
 
 R_df <- subset(df_brps, Proj_type == "Last" & Year < 2022 & XSPR_R_type == "Random Effect" & name %in% c("Random Effect", "Expected"))
 
@@ -633,14 +645,14 @@ years <- 1:length(ord)
 pal <- viridis::viridis_pal(option = "H")(length(ord))
 
 R_df_N$name <- factor(R_df_N$name)
-plt <- ggplot(R_df_N, aes(Year, val)) + 
-  geom_line(data=subset(R_df_N, name == "Expected"), colour = gray(0.7), linewidth = 1.5) +  
-  scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo") +
-  scale_colour_viridis_d(begin = 0.2, end = 0.8) + 
-  geom_ribbon(data=subset(R_df_N, name == "Expected"), aes(ymin=lo, ymax=hi, fill = name), fill= gray(0.7), alpha=0.3, linetype = 0) +
-  geom_point(aes(fill = BT, shape = 21), size = 4) +  
-  ylab("Recruitment (1000s)") + labs(shape="Estimate Type", colour="Bottom Temperature\nAnomaly", fill = "Estimate Type") #+
-plt
+# plt <- ggplot(R_df_N, aes(Year, val)) + 
+#   geom_line(data=subset(R_df_N, name == "Expected"), colour = gray(0.7), linewidth = 1.5) +  
+#   scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo") +
+#   scale_colour_viridis_d(begin = 0.2, end = 0.8) + 
+#   geom_ribbon(data=subset(R_df_N, name == "Expected"), aes(ymin=lo, ymax=hi, fill = name), fill= gray(0.7), alpha=0.3, linetype = 0) +
+#   geom_point(aes(fill = BT), shape = 21, size = 4) +  
+#   ylab("Recruitment (1000s)") + labs(shape="Estimate Type", colour="Bottom Temperature\nAnomaly", fill = "Estimate Type") #+
+# plt
 
 (p_ecov_N + theme(legend.position="none") + xlab("")) + (p_ecov_S  + ylab("") + xlab(""))
 
@@ -651,35 +663,30 @@ theme_update(strip.background = element_blank(), strip.placement = "outside", st
       axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(2)), legend.text = element_text(size = rel(2)), #text = element_text(size = rel(2)), 
       legend.title = element_text(size = rel(2)))
 
-res_dir <- here::here("results","jitter", "fit_0")
+res_dir <- here::here("results","jitter", "fit_0_rev")
 fit_0 <- readRDS(here::here("results", "fit_0_rev.RDS"))
-fit_0_jit_res <- readRDS(here::here(res_dir, "fit_0_jitter_results.RDS"))
+fit_0_jit_res <- readRDS(here::here(res_dir, "fit_0_rev_jitter_results.RDS"))
 jitters <- fit_0_jit_res[[1]]
-sort(sapply(jitters, \(x) x$obj))
-y <- order(sapply(jitters, \(x) x$obj))
-cbind(round(jitters[[y[3]]]$par,2), round(jitters[[y[1]]]$par - jitters[[y[3]]]$par,2))
 
-temp <- jitter_wham(fit_RDS = here::here("results","fit_0_rev.RDS"), n_jitter = 1, initial_vals = rbind(fit_0_jit_res[[2]][y[1],]))
-jit_mod <- readRDS(here::here("results", "fit_0_rev.RDS"))
-jit_mod$env$last.par.best <- temp[[1]][[1]]$last.par.best
-jit_mod$fn(temp[[1]][[1]]$par) #works!
 
-jit_mod <- readRDS(here::here("results", "fit_0_rev.RDS"))
-jit_mod$par <- fit_0_jit_res[[2]][y[1],]
-temp1 <- fit_tmb(jit_mod, n.newton = 3, do.sdrep = FALSE)
+y <- cbind(nll = sapply(jitters, \(x) x$obj), mgrad = sapply(jitters, \(x) max(abs(x$grad))))
+ordy <- order(y[,1])
+y[ordy,]
+cbind(round(fit_0$opt$par,2), round(fit_0$opt$par - jitters[[ordy[2]]]$par,2),round(fit_0$opt$par - jitters[[ordy[3]]]$par,2),round(fit_0$opt$par - jitters[[ordy[4]]]$par,2),round(fit_0$opt$par - jitters[[ordy[5]]]$par,2))
+# ordered fits 3 and 4 look identical
 
-jit_mod <- readRDS(here::here("results", "fit_0_rev.RDS"))
-jit_mod$par <- fit_0_jit_res[[2]][y[1],]
-temp11 <- fit_tmb(jit_mod, n.newton = 0, do.sdrep = FALSE)
-jit_mod <- readRDS(here::here("results", "fit_0_rev.RDS"))
-jit_mod$fn(temp11$opt$par)
+# pcol <- c("black","gray","red")[sapply(jitters, \(x) findInterval(max(abs(x$grad)), c(1e-20, 1e-10, 1)))]
+pcol <- c("black","gray","red")[sapply(jitters, \(x) findInterval(y[,2]), c(1e-2, 1))+1)]
+badgrads <- cbind(iter = which(y[,2]>1), y[y[,2]>1,])
+char_badgrad <- format(badgrads[,3])
+p1 <- as.numeric(substr(char_badgrad,1,3))
+p2 <- as.numeric(substr(char_badgrad,nchar(char_badgrad)-1,nchar(char_badgrad)))
+labs <- lapply(1:NROW(badgrads), \(i) bquote(.(p1[i])%*%10^.(p2[i])))
 
-temp2 <- nlminb(fit_0_jit_res[[2]][y[1],], fit_0$fn, fit_0$gr)
-fit_0$par <- fit_0_jit_res[[2]][y[1],]
-
-pcol <- c("black","gray","red")[sapply(jitters, \(x) findInterval(max(abs(x$grad)), c(1e-20, 1e-10, 1)))]
 cairo_pdf(file.path("paper", "fit_0_jitter_plt.pdf"), width = 7, height = 7)
-plot(sapply(jitters, \(x) x$obj), ylab = "Negative Log-Likelihood", xlab = "Jitter #", pch = 19, cex = 1.2, col = pcol)
+plot(sapply(jitters, \(x) x$obj), ylab = "Negative Log-Likelihood", xlab = "Jitter #", pch = 19, cex = 1.2, col = pcol, ylim =c(-980,-940))
+#text(x = badgrads[,1], y = badgrads[,2], labels = bquote(.(p1)%*%10^.(p2)), adj = c(1,0))
+lapply(1:NROW(badgrads), \(i) text(x = badgrads[i,1], y = badgrads[i,2]+0.5, labels = labs[[i]], adj = c(1,0)))
 abline(h = fit_0$opt$obj, cex = 1)
 dev.off()
 
@@ -688,18 +695,18 @@ dev.off()
 #Fig. S2
 res_dir <- here::here("results","jitter", "fit_1")
 fit_1_jit_res <- readRDS(here::here(res_dir, "fit_1_jitter_results.RDS"))
-
+fit_1 <- readRDS(here::here("results", "fit_1.RDS")))
 jitters <- fit_1_jit_res[[1]]
 sapply(jitters, \(x) max(abs(x$grad)))[1:10]
 sort(sapply(jitters, \(x) x$obj))
 y <- order(sapply(jitters, \(x) x$obj))
 sapply(jitters, \(x) max(abs(x$grad)))[y]
-badpar <- sapply(y[1:3], \(x) jitters[[x]]$par) - fits[[2]]$opt$par
+badpar <- sapply(y[1:3], \(x) jitters[[x]]$par) - fit_1$opt$par
 round(badpar,2)
 pcol <- c("black","gray","red")[sapply(jitters, \(x) findInterval(max(abs(x$grad)), c(1e-6,1e-2, 10)))]
 cairo_pdf(file.path("paper", "fit_1_jitter_plt.pdf"), width = 7, height = 7)
 plot(sapply(jitters, \(x) x$obj), ylab = "Negative Log-Likelihood", xlab = "Jitter #", pch = 19, cex = 1.2, col = pcol)
-abline(h = fits[[2]]$opt$obj, cex = 1)
+abline(h = fit_1$opt$obj, cex = 1)
 dev.off()
 
 ###############################################

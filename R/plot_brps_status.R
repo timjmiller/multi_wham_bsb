@@ -1,4 +1,4 @@
-library(wham)
+library("wham", lib.loc = "c:/work/wham/old_packages/53e236b")
 library(ggplot2)
 library(dplyr)
 library(patchwork)

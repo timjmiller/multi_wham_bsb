@@ -1,3 +1,4 @@
+library("wham", lib.loc = "c:/work/wham/old_packages/53e236b")
 
 mod_names <- paste0("$M_{", 0:13,"}$")
 col_names <- c("Model", "Temperature effect (north)", "Temperature effect (south)", "$M$ at age 1 random effects")
@@ -14,8 +15,8 @@ mod_table[c(6,7),3] <- "$M$ at age 1"
 mod_table[8:14,2:3] <- mod_table[1:7,2:3]
 
 
-fits <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))
-fits_M_re <- readRDS(file.path("results","fits_M_re_better.RDS"))
+fits <- readRDS(file.path("results","fits_no_M_re_rev_1.RDS"))
+fits_M_re <- readRDS(file.path("results","fits_M_re_best.RDS"))
 
 # AIC
 
@@ -87,10 +88,10 @@ saveRDS(par_peels, file.path("results", "beta_sigma_par_peel_table.RDS"))
 ########################################################
 #static BRP table
 
-sapply(fits, \(x) x$rep$log_FXSPR_static)
-sapply(fits, \(x) x$rep$log_SSB_FXSPR_static)
-sapply(fits, \(x) x$rep$log_SPR0[,3])
-exp(sapply(fits, \(x) x$rep$log_SSB_FXSPR[,3]))
+# sapply(fits, \(x) x$rep$log_FXSPR_static)
+# sapply(fits, \(x) x$rep$log_SSB_FXSPR_static)
+# sapply(fits, \(x) x$rep$log_SPR0[,3])
+# exp(sapply(fits, \(x) x$rep$log_SSB_FXSPR[,3]))
 
 
-fits[[1]]$rep$log_SPR0[,3])
+# fits[[1]]$rep$log_SPR0[,3])

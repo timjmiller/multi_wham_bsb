@@ -1,4 +1,4 @@
-library(wham)
+library("wham", lib.loc = "c:/work/wham/old_packages/53e236b")
 library(ggplot2)
 library(dplyr)
 library(patchwork)
@@ -8,7 +8,8 @@ theme_update(strip.background = element_blank(), strip.placement = "outside", st
       axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(2)), legend.text = element_text(size = rel(2)), #text = element_text(size = rel(2)), 
       legend.title = element_text(size = rel(2)))
 
-fit1 <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))[[2]] #M_1
+# fit1 <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))[[2]] #M_1
+fit1 <- readRDS(here::here("results","fit_1.RDS")) #M_1
 
 proj_R1 <- lapply(1:3, \(x) readRDS(here::here("results",paste0("m1_proj_",x,"_R_opt1.RDS"))))
 proj_R3 <- lapply(1:3, \(x) readRDS(here::here("results",paste0("m1_proj_",x,"_R_opt3.RDS"))))
@@ -536,149 +537,149 @@ dev.off()
 #######################################################################################
 #old
 
-proj <- list() 
-for(i in 1:3) proj[[i]] <- readRDS(here::here("results",paste0("m1_proj_",i,".RDS")))
-fjp <- list() 
-for(i in 1:3) fjp[[i]] <- readRDS(here::here("results",paste0("m1_proj_",i,"_sdrep_fjp.RDS")))
-for(i in 1:3) proj[[i]]$sdrep <- fjp[[i]]
+# proj <- list() 
+# for(i in 1:3) proj[[i]] <- readRDS(here::here("results",paste0("m1_proj_",i,".RDS")))
+# fjp <- list() 
+# for(i in 1:3) fjp[[i]] <- readRDS(here::here("results",paste0("m1_proj_",i,"_sdrep_fjp.RDS")))
+# for(i in 1:3) proj[[i]]$sdrep <- fjp[[i]]
 
-temp <- cbind.data.frame(est3 = TMB:::as.list.sdreport(proj[[3]]$sdrep, report = TRUE, what = "Est")$Ecov_x[,1])
-temp <- cbind(temp, se3 = TMB:::as.list.sdreport(proj[[3]]$sdrep, report = TRUE, what = "Std")$Ecov_x[,1])
-temp <- cbind(est1 = NA, se1 = NA, est2 = NA, se2 = NA, temp)
-temp$est1[which(proj[[3]]$input$years_Ecov %in% proj[[1]]$input$years_Ecov)] <- TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Est")$Ecov_x[,1]
-temp$se1[which(proj[[3]]$input$years_Ecov %in% proj[[1]]$input$years_Ecov)] <- TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Std")$Ecov_x[,1]
-temp$est2[which(proj[[3]]$input$years_Ecov %in% proj[[2]]$input$years_Ecov)] <- TMB:::as.list.sdreport(proj[[2]]$sdrep, report = TRUE, what = "Est")$Ecov_x[,1]
-temp$se2[which(proj[[3]]$input$years_Ecov %in% proj[[2]]$input$years_Ecov)] <- TMB:::as.list.sdreport(proj[[2]]$sdrep, report = TRUE, what = "Std")$Ecov_x[,1]
+# temp <- cbind.data.frame(est3 = TMB:::as.list.sdreport(proj[[3]]$sdrep, report = TRUE, what = "Est")$Ecov_x[,1])
+# temp <- cbind(temp, se3 = TMB:::as.list.sdreport(proj[[3]]$sdrep, report = TRUE, what = "Std")$Ecov_x[,1])
+# temp <- cbind(est1 = NA, se1 = NA, est2 = NA, se2 = NA, temp)
+# temp$est1[which(proj[[3]]$input$years_Ecov %in% proj[[1]]$input$years_Ecov)] <- TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Est")$Ecov_x[,1]
+# temp$se1[which(proj[[3]]$input$years_Ecov %in% proj[[1]]$input$years_Ecov)] <- TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Std")$Ecov_x[,1]
+# temp$est2[which(proj[[3]]$input$years_Ecov %in% proj[[2]]$input$years_Ecov)] <- TMB:::as.list.sdreport(proj[[2]]$sdrep, report = TRUE, what = "Est")$Ecov_x[,1]
+# temp$se2[which(proj[[3]]$input$years_Ecov %in% proj[[2]]$input$years_Ecov)] <- TMB:::as.list.sdreport(proj[[2]]$sdrep, report = TRUE, what = "Std")$Ecov_x[,1]
 
-temp <- temp[which(proj[[3]]$input$years_Ecov %in% proj[[2]]$input$years_full), ]
-temp <- cbind(year = proj[[2]]$input$years_full, temp)
-rownames(temp) <- proj[[2]]$input$years_full
+# temp <- temp[which(proj[[3]]$input$years_Ecov %in% proj[[2]]$input$years_full), ]
+# temp <- cbind(year = proj[[2]]$input$years_full, temp)
+# rownames(temp) <- proj[[2]]$input$years_full
 
-fit1 <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))[[2]]
+# fit1 <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))[[2]]
 
-ind <- matrix(which(names(fit1$sdrep$value) == "Ecov_x"), length(fit1$input$years_Ecov), 2)[,1]
-ind <- ind[which(fit1$input$years_Ecov %in% tail(fit1$years,5))]
+# ind <- matrix(which(names(fit1$sdrep$value) == "Ecov_x"), length(fit1$input$years_Ecov), 2)[,1]
+# ind <- ind[which(fit1$input$years_Ecov %in% tail(fit1$years,5))]
 
-proj_est2 <- mean(fit1$sdrep$value[ind])
-proj_est2
-proj[[2]]$rep$Ecov_out_R[1,,1] #same
+# proj_est2 <- mean(fit1$sdrep$value[ind])
+# proj_est2
+# proj[[2]]$rep$Ecov_out_R[1,,1] #same
 
-proj_se2 <- sqrt(sum(fit1$sdrep$cov[ind,ind]))/5
+# proj_se2 <- sqrt(sum(fit1$sdrep$cov[ind,ind]))/5
 
-temp$est2[which(!proj[[2]]$input$years_full %in% fit1$input$years)] <- proj_est2
-temp$se2[which(!proj[[2]]$input$years_full %in% fit1$input$years)] <- proj_se2
+# temp$est2[which(!proj[[2]]$input$years_full %in% fit1$input$years)] <- proj_est2
+# temp$se2[which(!proj[[2]]$input$years_full %in% fit1$input$years)] <- proj_se2
 
-proj[[3]]$rep$Ecov_out_R[1,,1] 
-proj_est3 <- proj[[3]]$rep$Ecov_out_R[1,which(!proj[[2]]$input$years_full %in% fit1$input$years),1]
-temp$est3[which(!proj[[2]]$input$years_full %in% fit1$input$years)] <- proj_est3
-temp$se3[which(!proj[[2]]$input$years_full %in% fit1$input$years)] <- 0 #input value, not estimated internally
+# proj[[3]]$rep$Ecov_out_R[1,,1] 
+# proj_est3 <- proj[[3]]$rep$Ecov_out_R[1,which(!proj[[2]]$input$years_full %in% fit1$input$years),1]
+# temp$est3[which(!proj[[2]]$input$years_full %in% fit1$input$years)] <- proj_est3
+# temp$se3[which(!proj[[2]]$input$years_full %in% fit1$input$years)] <- 0 #input value, not estimated internally
 
-temp$R1 <- proj[[1]]$rep$NAA[1,1,,1]/1000
-temp$predR1 <- proj[[1]]$rep$pred_NAA[1,1,,1]/1000
-temp$R1.cv <- TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Std")$log_NAA_rep[1,1,,1]
-temp$R2 <- proj[[2]]$rep$NAA[1,1,,1]/1000
-temp$predR2 <- proj[[2]]$rep$pred_NAA[1,1,,1]/1000
-temp$R2.cv <- TMB:::as.list.sdreport(proj[[2]]$sdrep, report = TRUE, what = "Std")$log_NAA_rep[1,1,,1]
-temp$R3 <- proj[[3]]$rep$NAA[1,1,,1]/1000
-temp$predR3 <- proj[[3]]$rep$pred_NAA[1,1,,1]/1000
-temp$R3.cv <- TMB:::as.list.sdreport(proj[[3]]$sdrep, report = TRUE, what = "Std")$log_NAA_rep[1,1,,1]
+# temp$R1 <- proj[[1]]$rep$NAA[1,1,,1]/1000
+# temp$predR1 <- proj[[1]]$rep$pred_NAA[1,1,,1]/1000
+# temp$R1.cv <- TMB:::as.list.sdreport(proj[[1]]$sdrep, report = TRUE, what = "Std")$log_NAA_rep[1,1,,1]
+# temp$R2 <- proj[[2]]$rep$NAA[1,1,,1]/1000
+# temp$predR2 <- proj[[2]]$rep$pred_NAA[1,1,,1]/1000
+# temp$R2.cv <- TMB:::as.list.sdreport(proj[[2]]$sdrep, report = TRUE, what = "Std")$log_NAA_rep[1,1,,1]
+# temp$R3 <- proj[[3]]$rep$NAA[1,1,,1]/1000
+# temp$predR3 <- proj[[3]]$rep$pred_NAA[1,1,,1]/1000
+# temp$R3.cv <- TMB:::as.list.sdreport(proj[[3]]$sdrep, report = TRUE, what = "Std")$log_NAA_rep[1,1,,1]
 
-#have to do se(predR) by hand
-x <- list(make_pred_R_cv(proj[[1]], fjp[[1]], type = 1))
-x[[2]] <- make_pred_R_cv(proj[[2]], fjp[[2]], type = 2)
-x[[3]] <- make_pred_R_cv(proj[[3]], fjp[[3]], type = 3)
-temp$predR1 
-x[[1]][,"pred_R"]
-temp$predR2 
-x[[2]][,"pred_R"]
-temp$predR3 
-x[[3]][,"pred_R"]
-temp$predR1.cv <- x[[1]][,"cv"]
-temp$predR2.cv <- x[[2]][,"cv"]
-temp$predR3.cv <- x[[3]][,"cv"]
-# temp <- temp[which(proj[[2]]$input$years_full<2032),]
+# #have to do se(predR) by hand
+# x <- list(make_pred_R_cv(proj[[1]], fjp[[1]], type = 1))
+# x[[2]] <- make_pred_R_cv(proj[[2]], fjp[[2]], type = 2)
+# x[[3]] <- make_pred_R_cv(proj[[3]], fjp[[3]], type = 3)
+# temp$predR1 
+# x[[1]][,"pred_R"]
+# temp$predR2 
+# x[[2]][,"pred_R"]
+# temp$predR3 
+# x[[3]][,"pred_R"]
+# temp$predR1.cv <- x[[1]][,"cv"]
+# temp$predR2.cv <- x[[2]][,"cv"]
+# temp$predR3.cv <- x[[3]][,"cv"]
+# # temp <- temp[which(proj[[2]]$input$years_full<2032),]
 
-#lag is 0 so years match
+# #lag is 0 so years match
 
-temp$lo1 <- temp$est1 + qnorm(0.025)*temp$se1
-temp$lo2 <- temp$est2 + qnorm(0.025)*temp$se2
-temp$lo3 <- temp$est3 + qnorm(0.025)*temp$se3
-temp$hi1 <- temp$est1 + qnorm(0.975)*temp$se1
-temp$hi2 <- temp$est2 + qnorm(0.975)*temp$se2
-temp$hi3 <- temp$est3 + qnorm(0.975)*temp$se3
+# temp$lo1 <- temp$est1 + qnorm(0.025)*temp$se1
+# temp$lo2 <- temp$est2 + qnorm(0.025)*temp$se2
+# temp$lo3 <- temp$est3 + qnorm(0.025)*temp$se3
+# temp$hi1 <- temp$est1 + qnorm(0.975)*temp$se1
+# temp$hi2 <- temp$est2 + qnorm(0.975)*temp$se2
+# temp$hi3 <- temp$est3 + qnorm(0.975)*temp$se3
 
-temp$loR1 <- exp(log(temp$R1) + qnorm(0.025)*temp$R1.cv)
-temp$loR2 <- exp(log(temp$R2) + qnorm(0.025)*temp$R2.cv)
-temp$loR3 <- exp(log(temp$R3) + qnorm(0.025)*temp$R3.cv)
-temp$hiR1 <- exp(log(temp$R1) + qnorm(0.975)*temp$R1.cv)
-temp$hiR2 <- exp(log(temp$R2) + qnorm(0.975)*temp$R2.cv)
-temp$hiR3 <- exp(log(temp$R3) + qnorm(0.975)*temp$R3.cv)
+# temp$loR1 <- exp(log(temp$R1) + qnorm(0.025)*temp$R1.cv)
+# temp$loR2 <- exp(log(temp$R2) + qnorm(0.025)*temp$R2.cv)
+# temp$loR3 <- exp(log(temp$R3) + qnorm(0.025)*temp$R3.cv)
+# temp$hiR1 <- exp(log(temp$R1) + qnorm(0.975)*temp$R1.cv)
+# temp$hiR2 <- exp(log(temp$R2) + qnorm(0.975)*temp$R2.cv)
+# temp$hiR3 <- exp(log(temp$R3) + qnorm(0.975)*temp$R3.cv)
 
-temp$lopredR1 <- exp(log(temp$predR1) + qnorm(0.025)*temp$predR1.cv)
-temp$lopredR2 <- exp(log(temp$predR2) + qnorm(0.025)*temp$predR2.cv)
-temp$lopredR3 <- exp(log(temp$predR3) + qnorm(0.025)*temp$predR3.cv)
-temp$hipredR1 <- exp(log(temp$predR1) + qnorm(0.975)*temp$predR1.cv)
-temp$hipredR2 <- exp(log(temp$predR2) + qnorm(0.975)*temp$predR2.cv)
-temp$hipredR3 <- exp(log(temp$predR3) + qnorm(0.975)*temp$predR3.cv)
+# temp$lopredR1 <- exp(log(temp$predR1) + qnorm(0.025)*temp$predR1.cv)
+# temp$lopredR2 <- exp(log(temp$predR2) + qnorm(0.025)*temp$predR2.cv)
+# temp$lopredR3 <- exp(log(temp$predR3) + qnorm(0.025)*temp$predR3.cv)
+# temp$hipredR1 <- exp(log(temp$predR1) + qnorm(0.975)*temp$predR1.cv)
+# temp$hipredR2 <- exp(log(temp$predR2) + qnorm(0.975)*temp$predR2.cv)
+# temp$hipredR3 <- exp(log(temp$predR3) + qnorm(0.975)*temp$predR3.cv)
 
-cairo_pdf(file.path("paper", "R_proj_results.pdf"), width = 16, height = 12)
-df <- subset(temp, year %in% 2019:2031)
-cols <- viridis::viridis_pal(begin = 0.2, end = 0.8, option = "H")(3)
-poly_cols <- viridis::viridis_pal(begin = 0.2, end = 0.8, option = "H", alpha = 0.3)(3)
-par(mfcol = c(2,2), oma = c(5,1,1,1), mar = c(1,6,1,1))
-ylim <- range(subset(temp, year %in% 2019:2031)[c("lo1","lo2","lo3", "hi1", "hi2", "hi3")])
-plot(temp$year, temp$est1, type = "n", xlim = c(2018,2031), lwd = 2, ylab = "", ylim = ylim, xaxt = "n", cex.axis = 2, cex.lab = 2, las = 1)
-mtext(side = 2, outer = FALSE, "Bottom Temperature Anomaly", cex = 2, line = 4)
-axis(1, labels = FALSE)
-grid(lty =2, col = gray(0.7))
-lines(temp$year, temp$est1, lwd = 2, col = cols[1])
-proj_ind <- which(df$year>2020)
-lines(df$year[proj_ind], df$est2[proj_ind], col = cols[2], lwd = 2)
-lines(df$year[proj_ind], df$est3[proj_ind], col = cols[3], lwd = 2)
-polygon(c(temp$year,rev(temp$year)), c(temp$lo1,rev(temp$hi1)), col = poly_cols[1], border = "transparent")
-proj_ind <- which(df$year>2021)
-polygon(c(df$year[proj_ind],rev(df$year[proj_ind])), c(df$lo2[proj_ind],rev(df$hi2[proj_ind])), col = poly_cols[2], border = "transparent")
-polygon(c(df$year[proj_ind],rev(df$year[proj_ind])), c(df$lo3[proj_ind],rev(df$hi3[proj_ind])), col = poly_cols[3], border = "transparent")
-abline(v=2021, lty = 3, lwd = 2)
+# cairo_pdf(file.path("paper", "R_proj_results.pdf"), width = 16, height = 12)
+# df <- subset(temp, year %in% 2019:2031)
+# cols <- viridis::viridis_pal(begin = 0.2, end = 0.8, option = "H")(3)
+# poly_cols <- viridis::viridis_pal(begin = 0.2, end = 0.8, option = "H", alpha = 0.3)(3)
+# par(mfcol = c(2,2), oma = c(5,1,1,1), mar = c(1,6,1,1))
+# ylim <- range(subset(temp, year %in% 2019:2031)[c("lo1","lo2","lo3", "hi1", "hi2", "hi3")])
+# plot(temp$year, temp$est1, type = "n", xlim = c(2018,2031), lwd = 2, ylab = "", ylim = ylim, xaxt = "n", cex.axis = 2, cex.lab = 2, las = 1)
+# mtext(side = 2, outer = FALSE, "Bottom Temperature Anomaly", cex = 2, line = 4)
+# axis(1, labels = FALSE)
+# grid(lty =2, col = gray(0.7))
+# lines(temp$year, temp$est1, lwd = 2, col = cols[1])
+# proj_ind <- which(df$year>2020)
+# lines(df$year[proj_ind], df$est2[proj_ind], col = cols[2], lwd = 2)
+# lines(df$year[proj_ind], df$est3[proj_ind], col = cols[3], lwd = 2)
+# polygon(c(temp$year,rev(temp$year)), c(temp$lo1,rev(temp$hi1)), col = poly_cols[1], border = "transparent")
+# proj_ind <- which(df$year>2021)
+# polygon(c(df$year[proj_ind],rev(df$year[proj_ind])), c(df$lo2[proj_ind],rev(df$hi2[proj_ind])), col = poly_cols[2], border = "transparent")
+# polygon(c(df$year[proj_ind],rev(df$year[proj_ind])), c(df$lo3[proj_ind],rev(df$hi3[proj_ind])), col = poly_cols[3], border = "transparent")
+# abline(v=2021, lty = 3, lwd = 2)
 
-ylim <- range(subset(temp, year %in% 2019:2031)[c("loR1","loR2","loR3", "hiR1", "hiR2", "hiR3")])
-plot(temp$year, temp$R1, type = "n", xlim = c(2018,2031), lwd = 2, xlab = "", ylab = "", ylim = ylim, cex.axis = 2, cex.lab = 2, las = 1)
-mtext(side = 2, outer = FALSE, expression(Recruitment~~(10^6)), cex = 2, line = 4)
-grid(lty =2, col = gray(0.7))
-lines(temp$year, temp$R1, lwd = 2, col = cols[1])
-lines(temp$year, temp$predR1, lty = 2, lwd = 2, col = cols[1])
-proj_ind <- which(df$year>2020)
-lines(df$year[proj_ind], df$R2[proj_ind], col = cols[2], lwd = 2)
-lines(df$year[proj_ind], df$predR2[proj_ind], col = cols[2], lty = 2, lwd = 2)
-lines(df$year[proj_ind], df$R3[proj_ind], col = cols[3], lwd = 2)
-lines(df$year[proj_ind], df$predR3[proj_ind], col = cols[3], lty = 2, lwd = 2)
-polygon(c(temp$year,rev(temp$year)), c(temp$loR1,rev(temp$hiR1)), col = poly_cols[1], border = "transparent")
-proj_ind <- which(df$year>2021)
-polygon(c(df$year[proj_ind],rev(df$year[proj_ind])), c(df$loR2[proj_ind],rev(df$hiR2[proj_ind])), col = poly_cols[2], border = "transparent")
-polygon(c(df$year[proj_ind],rev(df$year[proj_ind])), c(df$loR3[proj_ind],rev(df$hiR3[proj_ind])), col = poly_cols[3], border = "transparent")
-abline(v=2021, lty = 3, lwd = 2)
+# ylim <- range(subset(temp, year %in% 2019:2031)[c("loR1","loR2","loR3", "hiR1", "hiR2", "hiR3")])
+# plot(temp$year, temp$R1, type = "n", xlim = c(2018,2031), lwd = 2, xlab = "", ylab = "", ylim = ylim, cex.axis = 2, cex.lab = 2, las = 1)
+# mtext(side = 2, outer = FALSE, expression(Recruitment~~(10^6)), cex = 2, line = 4)
+# grid(lty =2, col = gray(0.7))
+# lines(temp$year, temp$R1, lwd = 2, col = cols[1])
+# lines(temp$year, temp$predR1, lty = 2, lwd = 2, col = cols[1])
+# proj_ind <- which(df$year>2020)
+# lines(df$year[proj_ind], df$R2[proj_ind], col = cols[2], lwd = 2)
+# lines(df$year[proj_ind], df$predR2[proj_ind], col = cols[2], lty = 2, lwd = 2)
+# lines(df$year[proj_ind], df$R3[proj_ind], col = cols[3], lwd = 2)
+# lines(df$year[proj_ind], df$predR3[proj_ind], col = cols[3], lty = 2, lwd = 2)
+# polygon(c(temp$year,rev(temp$year)), c(temp$loR1,rev(temp$hiR1)), col = poly_cols[1], border = "transparent")
+# proj_ind <- which(df$year>2021)
+# polygon(c(df$year[proj_ind],rev(df$year[proj_ind])), c(df$loR2[proj_ind],rev(df$hiR2[proj_ind])), col = poly_cols[2], border = "transparent")
+# polygon(c(df$year[proj_ind],rev(df$year[proj_ind])), c(df$loR3[proj_ind],rev(df$hiR3[proj_ind])), col = poly_cols[3], border = "transparent")
+# abline(v=2021, lty = 3, lwd = 2)
 
-ylim <- c(0,max(subset(temp, year %in% 2019:2031)[c("R1.cv","R2.cv","R3.cv")]))
-plot(temp$year, temp$R1.cv, type = "n", xlim = c(2018,2031), lwd = 2, xlab = "", ylab = "", ylim = ylim, xaxt = "n", cex.axis = 2, cex.lab = 2, las = 1)
-mtext(side = 2, outer = FALSE, "Random Effect CV", cex = 2, line = 4)
-axis(1, labels = FALSE)
-grid(lty =2, col = gray(0.7))
-lines(temp$year, temp$R1.cv, lwd = 2, col = cols[1])
-proj_ind <- which(df$year>2020)
-lines(df$year[proj_ind], df$R2.cv[proj_ind], col = cols[2], lwd = 2)
-lines(df$year[proj_ind], df$R3.cv[proj_ind], col = cols[3], lwd = 2)
-abline(v=2021, lty = 3, lwd = 2)
+# ylim <- c(0,max(subset(temp, year %in% 2019:2031)[c("R1.cv","R2.cv","R3.cv")]))
+# plot(temp$year, temp$R1.cv, type = "n", xlim = c(2018,2031), lwd = 2, xlab = "", ylab = "", ylim = ylim, xaxt = "n", cex.axis = 2, cex.lab = 2, las = 1)
+# mtext(side = 2, outer = FALSE, "Random Effect CV", cex = 2, line = 4)
+# axis(1, labels = FALSE)
+# grid(lty =2, col = gray(0.7))
+# lines(temp$year, temp$R1.cv, lwd = 2, col = cols[1])
+# proj_ind <- which(df$year>2020)
+# lines(df$year[proj_ind], df$R2.cv[proj_ind], col = cols[2], lwd = 2)
+# lines(df$year[proj_ind], df$R3.cv[proj_ind], col = cols[3], lwd = 2)
+# abline(v=2021, lty = 3, lwd = 2)
 
-ylim <- c(0,max(subset(temp, year %in% 2019:2031)[c("predR1.cv","predR2.cv","predR3.cv")]))
-plot(temp$year, temp$predR1.cv, type = "n", xlim = c(2018,2031), lwd = 2, xlab = "", ylab = "", ylim = ylim, cex.axis = 2, cex.lab = 2, las = 1)
-mtext(side = 2, outer = FALSE, "Expected CV", cex = 2, line = 4)
-grid(lty =2, col = gray(0.7))
-lines(temp$year, temp$predR1.cv, lwd = 2, col = cols[1])
-proj_ind <- which(df$year>2020)
-lines(df$year[proj_ind], df$predR2.cv[proj_ind], col = cols[2], lwd = 2)
-lines(df$year[proj_ind], df$predR3.cv[proj_ind], col = cols[3], lwd = 2)
-abline(v=2021, lty = 3, lwd = 2)
+# ylim <- c(0,max(subset(temp, year %in% 2019:2031)[c("predR1.cv","predR2.cv","predR3.cv")]))
+# plot(temp$year, temp$predR1.cv, type = "n", xlim = c(2018,2031), lwd = 2, xlab = "", ylab = "", ylim = ylim, cex.axis = 2, cex.lab = 2, las = 1)
+# mtext(side = 2, outer = FALSE, "Expected CV", cex = 2, line = 4)
+# grid(lty =2, col = gray(0.7))
+# lines(temp$year, temp$predR1.cv, lwd = 2, col = cols[1])
+# proj_ind <- which(df$year>2020)
+# lines(df$year[proj_ind], df$predR2.cv[proj_ind], col = cols[2], lwd = 2)
+# lines(df$year[proj_ind], df$predR3.cv[proj_ind], col = cols[3], lwd = 2)
+# abline(v=2021, lty = 3, lwd = 2)
 
-mtext(side = 1, line = 2, "Year", cex = 2, outer = TRUE)
-dev.off()
+# mtext(side = 1, line = 2, "Year", cex = 2, outer = TRUE)
+# dev.off()
 

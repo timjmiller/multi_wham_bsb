@@ -1,4 +1,4 @@
-library(wham)
+library("wham", lib.loc = "c:/work/wham/old_packages/53e236b")
 library(ggplot2)
 library(dplyr)
 library(patchwork)
@@ -9,12 +9,13 @@ theme_update(strip.background = element_blank(), strip.placement = "outside", st
       axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(2)), legend.text = element_text(size = rel(2)), #text = element_text(size = rel(2)), 
       legend.title = element_text(size = rel(2)))
 
-fit <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))[[2]] #M_1
-proj_1 <- readRDS(here::here("results",paste0("m1_proj_",1,".RDS")))
-proj_1_fjp <- readRDS(here::here("results",paste0("m1_proj_",1,"_sdrep_fjp.RDS")))
+# fit <- readRDS(file.path("results","fits_no_M_re_rev.RDS"))[[2]] #M_1
+fit <- readRDS(file.path("results","fit_1.RDS"))#M_1
+proj_1 <- readRDS(here::here("results",paste0("m1_proj_1_R_opt1.RDS")))
+# proj_1_fjp <- readRDS(here::here("results",paste0("m1_proj_",1,"_sdrep_fjp.RDS")))
 proj <- readRDS(here::here("results","m1_proj_3_R_opt1.RDS"))
-pred_R_N <- make_pred_R_cv(proj_1, proj_1_fjp, type = 1)
-pred_R_S <- make_pred_R_cv(proj_1, proj_1_fjp, type = 1, region = 2)
+pred_R_N <- make_pred_R_cv(proj_1, type = 1)
+pred_R_S <- make_pred_R_cv(proj_1, type = 1, region = 2)
 
 
 df_use <- cbind.data.frame(Year = proj$input$years_Ecov, name = "Ecov_RE", val = TMB:::as.list.sdreport(proj$sdrep, report = TRUE, what = "Est")$Ecov_x[,1], 
