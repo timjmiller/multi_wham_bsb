@@ -1,0 +1,141 @@
+\begin{longtable}[c]{r p{0.85\textwidth}}
+\caption{Definition of terms.\label{symbols}}%
+\\ \hline \hline \endfirsthead 
+\caption[]{(Continued)} %
+\\ \hline \hline \endhead
+ \hline \hline \endfoot
+$a$ & Age class indicator\\
+$A$ & Last age class (``plus group'')\\
+$a_{y,a,i,r}$ & Hazard (or negative sum of the instantaneous rates of mortality and movement) from the state corresonding to being alive in region $r$ for year $y$, age $a$ and seasonal interval $i$\\
+$\mathbf{A}_{y,a,i}$ & Instantaneous rate matrix for seasonal interval $i$, year $y$, and age $a$ ($(n_R + n_F + 1) \times (n_R + n_F + 1)$)\\
+$\mathbf{c}_{a}$ & Vector (length $n_F$) of mean individual weight at age $a$ for each fleet to use for $\upnu(\widetilde{F})$\\
+$\mathbf{c}_{y,a}$ & Vector (length $n_F$) of mean individual weight at age $a$ in year $y$ for each fleet\\
+$C_{f,y}$ & Observed aggregate catch for fleet $f$ in year $y$\\
+$\widehat C_{f,y}$ & Predicted aggregate catch for fleet $f$ in year $y$\\
+$\widehat{\mathbf{C}}_{y,a}$ & Vector (length $n_F$) of predicted biomass captured at age $a$ in year $y$ by each fleet across all stocks\\
+$\widehat{\mathbf{C}}_y$ & Vector (length $n_F$) of predicted aggregate catch for each fleet in year $y$\\
+$D_{y,a,i}$ & Proportion dying from natural mortality over the seasonal interval $i$ given alive (1 region model)\\
+$\mathbf{D}_{y,a,i}$ & Vector (length $n_R$) of proportions dying from natural mortality over the seasonal interval $i$ given alive  in each region at the start of the interval\\
+$f$ & Fishing fleet indicator\\
+$F_{f,1,a}$ & Fishing mortality rate at age $a$ for fleet $f$ in the first year\\
+$F_{f,y,a,i}$ & Fishing mortality rate for fleet $f$ in year $y$ at age $a$ in seasonal interval $i$\\
+$F_{\text{MSY}}$ & Fully-selected fishing mortality rate that maximizes equilibrium yield\\
+$\widetilde{F}$ & Equilibrium fully-selected fishing mortality rate parameter for equilibrium spawning-biomass-per-recruit and yield-per-recruit\\
+$\widetilde{F}_1$ & Equilibrium fully-selected fishing mortality rate parameter for equilibrium abundance at age in the first year\\
+$\widetilde{F}_{f,a}$ & Equilibrium fully-selected fishing mortality rate at age $a$ for fleet $f$ for equilibrium spawning-biomass-per-recruit and yield-per-recruit\\
+$\widetilde{F}_{f,1,a}$ & Equilibrium fishing mortality rate at age $a$ for fleet $f$ for equilibrium abundance at age in the first year\\
+$\overline{F}_{f,a}$ & Average fishing mortality rate for fleet $f$ at age $a$ over user-specified set of years\\
+$g(\mu_{r\rightarrow r',y,a,i})$ & Link function for movement rate $\mu_{r\rightarrow r',y,a,i}$\\
+$h(\log \widetilde{F})$ & Function used in Newton-Raphson method to determine reference points\\
+$h^{(1)}(\log \widetilde{F})$ & Derivative of $h(\log \widetilde{F})$ with respect to $\log \widetilde{F}$\\
+$H_{y,a,i}(r,f)$ & Proportion captured in fleet $f$ given beginning the seasonal interval alive in region $r$ for year $y$, age $a$, and seasonal interval $i$ \\
+$\mathbf{H}_{a}$ & Matrix ($n_R \times n_F$) of equilibrium proportions captured from age $a$ to $a+1$ in each fleet (columns) given alive on January 1 in each region (rows)\\
+$\mathbf{H}_{y,a,i}$ &  Matrix ($n_R \times n_F$) of proportions captured in each fishing fleet for year $y$, age $a$, and seasonal interval $i$ given alive in region $r$ at the beginning of the interval (submatrix of $\mathbf{P}_{y,a,i}$)\\
+$\mathbf{H}_{s,y,a}$ &  Matrix ($n_R \times n_F$) of proportions captured in each fishing fleet throughout year $y$, age $a$ for stock $s$ (submatrix of $\mathbf{P}_{y,a}$)\\
+$i$ & Seasonal interval indicator \\
+$\widehat I_{m,y,a}$ & Predicted relative abundance index for survey $m$ in year $y$ at age $a$ \\
+$\mathbf{I}$ & $n_R \times n_R$ identity matrix \\
+$\mathbf{I}_{H}$ & $n_F \times n_F$ identity matrix \\
+$K$ & Number of seasonal intervals in the annual time step\\
+$l_{m}$ & Lower bound for index $m$ catchability\\
+$m$ & Index observation indicator\\
+$M_{y,a}$ &  Natural mortality rate in year $y$ at age $a$ (1 region model)\\
+$M_{y,a,r}$ & Natural mortality rate in region $r$ and year $y$ at age $a$\\
+$n_E$ & Number of environmental covariates\\
+$n_F$ & Number of fishing fleets\\
+$n_R$ & Number of regions\\
+$N_{y,a,r}$ & Abundance at age $a$ in year $y$ alive in region $r$ on January 1\\
+$N_{m,s,y,a}$ & Abundance of stock $s$ in year $y$ at age $a$ at $t_m$ in region $r_m$\\
+$\mathbf{N}_{y,a}$ & Vector (length $n_R + n_F + 1$) of abundances at age $a$ in year $y$ in each state (alive in each region, dead in each fleet and dead due to natural mortality)\\
+$\mathbf{N}_{O,y,a}$ & Vector (length $n_R$) of abundance at age $a$ in year $y$ alive in each region on January 1 for a given stock\\
+$\mathbf{N}_{O,s,y,a}$ & Vector (length $n_R$) of abundance at age $a$ in year $y$ alive in each region on January 1 for stock $s$\\
+$\mathbf{N}_{O,1,r}$ & Vector (length $A$) of abundance by age in region $r$ in the first year\\
+$\mathbf{N}_{H,s,y,a}$ & Vector (length $n_F$) of numbers of stock $s$ at age $a$ in year $y$ captured by each fleet\\
+$\mathbf{N}_{H,y,a}$ & Vector (length $n_F$) of numbers at age $a$ in year $y$ captured by each fleet across all stocks\\
+$\widetilde{\mathbf{N}}_{1}$ & Vector (length $n_R$) of equilibrium numbers at age 1 (only non-zero in element corresponding to $r_s$ for stock $s$\\
+$O_{y,a,i}(r,r')$ & Proportions surviving and occurring in region $r'$ given beginning the seasonal interval alive in region $r$ for year $y$, age $a$ and seasonal interval $i$\\
+$\mathbf{O}_{a}$ & Matrix ($n_R \times n_R$) of equilibrium proportions surviving from age $a$ to $a+1$ and occurring in each region (columns) given alive on January 1 in each region (rows)\\
+$\mathbf{O}_{y,a,i}$ & Matrix ($n_R \times n_R$) of proportions surviving seasonal interval $i$ and occurring in each region for year $y$, age $a$ (submatrix of $\mathbf{P}_{y,a,i}$)\\
+$\mathbf{O}_{y,a,\cdot,r_s}(t_s)$ & Vector (length $n_R$) of proportions surviving up to time $t_s$ and occurring in region $r_s$ given being alive in each region at the start of the year ($r_s$ column of the upper-left submatrix of Eq. \ref{eq:ptm_spawn})\\
+$\mathbf{O}_{s,y,a,\cdot,r_m}(t_m)$ & Vector (length $n_R$) of proportion at age $a$ in year $y$ surviving up to time $t_m$ and occurring in region $r_m$ given being alive in each region at the start of the year for stock $s$ ($r_m$ column of the upper-left submatrix of Eq. \ref{eq:ptm_index})\\
+$\mathbf{O}_{a}(t_s)$ & Matrix ($n_R \times n_R$) of equilibrium proportions surviving from age $a$ to $a+t_s$ and occurring in each region (columns) given alive on January 1 in each region (rows)\\
+$\mathbf{O}_{a,\cdot,r_s}(t_s)$ & Column $r_s$ of $\mathbf{O}_{a}(t_s)$\\
+$\widetilde{\mathbf{O}}_{a}$ & Matrix ($n_R \times n_R$) of equilibrium proportions alive in each region at age $a$ (columns) given recruitment in each region (rows)\\
+$\widetilde{\mathbf{O}}_{a,r_s,\cdot}$ & Row vector $r_s$ (length $n_R$) of $\widetilde{\mathbf{O}}_{a}$\\
+$p$ & Percent reduction of $\upphi(\widetilde{F})$ from unfished value for SPR-based reference points\\ 
+$\mathbf{P}_{y,a}(\delta_1,\ldots,\delta_K)$ & Probability transition matrix for year $y$ and age $a$ over seasonal intervals $\delta_1,\ldots, \delta_K$\\
+$\mathbf{P}_{y,a,i}$ & Probability transition matrix for year $y$, age $a$, and seasonal interval $i$\\
+$q_{m,y}$ & Catchability of index $m$ in year $y$\\
+$r$ & Region indicator\\
+$r_f$ & Region where fleet $f$ operates\\
+$r_s$ & Region where stock $s$ spawns and recruits\\
+$s$ & Stock (component) indicator\\
+$S_{y,a,i}$ & Proportion surviving seasonal interval $i$ in year $y$, at age $a$ (1 region model)\\
+$\mathbf{S}_{y,a,i}$ & Matrix ($n_R \times n_R$) of of proportions surviving in each region over the seasonal interval $i$, year $y$, age $a$ (prior to movement)\\
+$t_m$ & Duration between the beginning of the year and when index $m$ observes the population\\
+$t_s$ & Fraction between the beginning of the year and when spawning occurs for stock $s$\\
+$u_{m}$ & Upper bound for index $m$ catchability\\
+$w_{m,y,a}$ & Average weight of individuals at age $a$ for index $m$ if the index is quantified in biomass, otherwise it is one\\
+$w_{y,a}$ & Mean individual weight at spawning for a given stock at age $a$ in year $y$\\
+$X_{y}$ & Latent bottom temperature that may affect a black sea bass stock component in year $y$\\
+$X_{k,y}$ & Latent environmetal covariate $k$ affecting the population in year $y$\\
+$y$ & Year indicator\\
+$Z_{y,a,i}$ & Total mortality rate in year $y$ at age $a$ in seasonal interval $i$ (1 region model)\\
+$Z_{y,a,i,r}$ & Total mortality rate in region $r$ and year $y$ at age $a$ in seasonal interval $i$\\
+$\text{mat}_{y,a}$ & Proportion mature at age $a$ in year $y$ for a given stock\\
+$\text{sel}_{f,1,a}$ & Selectivity scalar for fleet $f$ at age $a$ in the first year\\
+$\text{sel}_{f,a}$ & Selectivity scalar for fleet $f$ at age $a$ for SPR-based reference points\\
+$\text{sel}_{m,y,a}$ &  Selectivity of index $m$ at age $a$ in year $y$ \\
+$\text{SSB}_{y}$ & Spawning stock biomass for a given stock in region $r_s$ in year $y$\\
+$\beta_M$ & Effect of bottom temperature on age 1 natural mortality rate for a given black sea bass stock component\\
+$\beta_{M,0}$ & Median natural mortality rate parameter for a given black sea bass stock component\\
+$\beta_{M,r,a,k}$ & Effect of environmental covariate $k$ on natural mortality rate in region $r$ at age $a$\\
+$\beta_{r \rightarrow r',a,i,k}$ & Effect of environmental covariate $k$ on movement from region $r$ to $r'$ at age $a$ in seasonal interval $i$\\
+$\beta_R$ & Effect of bottom temperature on recruitment for a given black sea bass stock component\\
+$\beta_{R,0}$ & Median recruitment parameter for a given black sea bass stock component\\
+$\beta_{q,m,k}$ & Effect of environmental covariate $k$ on index $m$ catchability\\
+$\gamma_{r\rightarrow r',i}$ & Random effect for link-transformed mean movement from region $r$ to $r'$ in seasonal interval $i$ when a prior distribution is assumed\\
+$\delta_i$ & Duration of seasonal interval $i$\\
+$\delta_{m,i}$ & Duration between the beginning of seasonal interval $i$ and $t_m$\\
+$\delta_{s,i}$ & Duration between the beginning of seasonal interval $i$ and $t_s$ \\
+$\varepsilon_{y,a,r}$ & Normally distributed random effect for abundance at age $a$ in year $y$ in region $r$\\
+$\varepsilon_{N_1,a,r}$ & Normally distributed random effect for initial number at age $a$ in the first year for region $r$\\ 
+$\varepsilon_{y,1}$ & Normally distributed random effect for abundance at age 1 in year $y$ for a given stock\\
+$\varepsilon_{r\rightarrow r',y,a,i}$ & Normally distributed random effect for movement from region $r$ to region $r'$ in seasonal interval $i$ and year $y$ at age $a$\\
+$\varepsilon_{M,y,a,r}$ & Normally distributed random effect for natural mortality rate in region $r$ and year $y$ at age $a$\\
+$\varepsilon_{q,m,y}$ & Index $m$ catchability random effect in year $y$\\
+$\boldsymbol{\varepsilon}_{y,a}$ & Vector (length $n_R$) of normally distributed random effects for abundance alive in each region on January 1 of year $y$ at age $a$\\
+$\boldsymbol{\varepsilon}_{N_1,r}$ & Vector (length $A$) of normally distributed random effects for initial numbers at age in the first year for region $r$\\ 
+$\theta_{r\rightarrow r',i}$ & Mean or intercept parameter across age and year for movement from region $r$ to region $r'$ in seasonal interval $i$\\
+$\theta_{N_1,r}$ & Mean parameter for initial numbers at age random effects in the first year for region $r$\\
+$\theta_{M,a,r}$ & Mean parameter for natural mortality rate at age $a$ in region $r$\\
+$\theta_{R}$ & Mean parameter across year for recruitment\\
+$\theta_{q,m}$ & Mean index $m$ catchability parameter\\
+$\lambda_s$ & Weighting of equilibrium spawning biomass-per-recruit for stock $s$ to use for defining SPR-based fishing mortality reference point\\
+$\mu_{r\rightarrow r',y,a,i}$ & Movement rate from region $r$ to region $r'$ in seasonal interval $i$ and year $y$ at age $a$\\
+$\mu_{N\rightarrow S}$ & Proportions of the northern component of the BSB stock moving south from the north\\
+$\mu_{S\rightarrow N}$ & Proportions of the northern component of the BSB stock moving north from the south\\
+$\boldsymbol{\mu}_{1}$ & Matrix ($2 \times 2$) of proportions of the northern component of the BSB stock moving or staying in north and south region for the seasonal intervals after spawning\\
+$\boldsymbol{\mu}_{2}$ & Matrix ($2 \times 2$) of proportions of the northern component of the BSB stock moving or staying in north and south region for the seasonal intervals before spawning\\
+$\boldsymbol{\mu}_{y,a,i}$ & Matrix ($n_R \times n_R$) of proportions moving or staying in each region at the end of seasonal interval $i$ in year $y$ and age $a$ \\
+$\upnu(\widetilde{F})$ & Matrix of equilibrium yield-per-recruit by region and fleet at fully-selected fishing mortality rate $\widetilde{F}$\\
+$\rho_{N,\text{age},r}$ & First order auto-regressive correlation parameter across ages for abundance random effects in region $r$ for age classes $>1$\\
+$\rho_{N,\text{year},r}$ & First order auto-regressive correlation parameter across years for abundance at age random effects in region $r$ for age classes $>1$\\
+$\rho_{N,1,\text{year}}$ & First order auto-regressive correlation parameter across years for abundance at age 1 random effects\\
+$\rho_{N_1,r}$ & First order auto-regressive correlation parameter for initial numbers at age random effects in the first year for region $r$\\
+$\rho_{r \rightarrow r',\text{age},i}$ & First order auto-regressive correlation parameter across ages for movement random effects from region $r$ to $r'$ in seasonal interval $i$\\
+$\rho_{r \rightarrow r',\text{year},i}$ & First order auto-regressive correlation parameter across years for movement random effects from region $r$ to $r'$ in seasonal interval $i$\\
+$\rho_{M,\text{age},r}$ & First order auto-regressive correlation parameter across ages for natural mortality rate random effects in region $r$\\
+$\rho_{M,\text{year},r}$ & First order auto-regressive correlation parameter across years for natural mortality rate random effects in region $r$\\
+$\rho_{q,m}$ & First order auto-regressive correlation parameter across years for index $m$ catchability random effects\\
+$\sigma_{f,y}$ & Standard deviation of observed log-aggregate catch for fleet $f$ in year $y$\\
+$\sigma_{N,a,r}$ & Standard deviation parameter for normally distributed random effects of abundance at age $a$ in region $r$\\
+$\sigma_{N,1}$ & Standard deviation parameter for normally distributed random effects of abundance at age 1 for a givens stock\\
+$\sigma_{N_1,r}$ & Standard deviation parameter for numbers at age normally distributed random effects in the first year for region $r$\\
+$\sigma_{r \rightarrow r',i}$ & Standard deviation parameter for normally distributed random effects of movement from region $r$ to $r'$ in seasonal interval $i$\\
+$\sigma_{\gamma, r \rightarrow r',i}$ & Standard deviation parameter for prior distribution of $\gamma_{r\rightarrow r',i}$\\
+$M_{y,a,r}$ & natural mortality rate for age $a$ in year $y$ in region $r$\\
+$\sigma_{M,r}$ & Standard deviation parameter for natural mortality rate random effects in region $r$\\
+$\sigma_{q,m}$ & Standard deviation parameter for index $m$ catchability random effects\\
+$\upphi(\widetilde{F})$ & Equilibrium spawning biomass per recruit a given stock at fully-selected fishing mortality rate $\widetilde{F}$
+\end{longtable}
