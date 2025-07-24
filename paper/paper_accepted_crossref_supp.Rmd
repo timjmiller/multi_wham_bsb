@@ -12,9 +12,10 @@ output:
     number_sections: yes
     fig_caption: yes
     includes:
-      in_header: options_main_final.sty
+      in_header: options_accepted_crossref_supp.sty
 csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
 bibliography: bsb-wham.bib
+link-citations: yes
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -378,7 +379,7 @@ The Working Group investigated many alternative assumptions for the probability 
 
 ## Model fitting and diagnostics {-}
 
-We used a development version ([commit 53e236b](https://github.com/timjmiller/wham/tree/53e236b)) of the WHAM package after the release of version 2.0 for all results. All code for fitting models and generating results can be found at [github.com/timjmiller/multi_wham_bsb](https://github.com/timjmiller/multi_wham_bsb). 
+We used a development version ([commit 53e236b](https://github.com/timjmiller/wham/tree/53e236b)) of the WHAM package after the release of version 2.0 for all results. All code for fitting models and generating results can be found at [github.com/timjmiller/multi_wham_bsb](https://github.com/timjmiller/multi_wham_bsb), which is permanently archived at [doi:10.5281/zenodo.15785564](https://doi.org/10.5281/zenodo.15785564). 
 
 We examined retrospective patterns for all models by fitting corresponding models where the terminal year is reduced sequentially by one year (peel) for seven years. Therefore, there are eight fits of each model with the time series reduced by zero to seven years. We  calculated Mohn's $\rho$ for SSB, and average fishing mortality rate at ages 6 and 7. Absolute values of Mohn's $\rho$ near 0 imply no pattern in estimation of these quantities as the time-series is sequentially extended [@mohn99]. As in @milleretal16, we also assessed the consistency of the AIC-based model selection over retrospective peels to guard against previously noted changes in perception of covariate effects on recruitment with increased length of the time series of observations [@myers98]. This retrospective examination was also recommended by @brooks24.
 
@@ -468,7 +469,7 @@ The authors declare there are no competing interests.
 
 # Data and Code Availability {-}
 
-As described in the methods section, all data and code for conducting analyses and creating the manuscript are available at [DOI].
+As described in the methods section, all data and code for conducting analyses and creating the manuscript are available at [doi:10.5281/zenodo.15785564](https://doi.org/10.5281/zenodo.15785564).
 
 \pagebreak
 

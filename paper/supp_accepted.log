@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.7.1)  1 JUL 2025 11:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.7.1)  2 JUL 2025 09:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**supp_final.tex
-(./supp_final.tex
+**supp_accepted.tex
+(./supp_accepted.tex
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-06-09>
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/article.cls
@@ -556,34 +556,34 @@ Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
 ) (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-06-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count349
-) (./supp_final.aux)
-\openout1 = `supp_final.aux'.
+) (./supp_accepted.aux)
+\openout1 = `supp_accepted.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 149.
+LaTeX Font Info:    ... okay on input line 149.
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring OFF on input line 146.
+Package hyperref Info: Link coloring OFF on input line 149.
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -624,44 +624,44 @@ Package caption Info: rotating package is loaded.
 Package caption Info: threeparttable package is loaded.
 Package caption Info: wrapfig package is loaded.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 148.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 151.
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 148.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 151.
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 148.
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 151.
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 148.
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 151.
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 148.
+(Font)              <12> on input line 151.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 148.
+(Font)              <8> on input line 151.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 148.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 148.
+(Font)              <6> on input line 151.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 151.
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 148.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 151.
 (c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 149.
+(Font)              <10> on input line 152.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 149.
+(Font)              <7> on input line 152.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 149.
+(Font)              <5> on input line 152.
 
-Underfull \hbox (badness 10000) in paragraph at lines 149--153
+Underfull \hbox (badness 10000) in paragraph at lines 152--156
 
  []
 
@@ -674,33 +674,33 @@ Non-PDF special ignored!
 {c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 201.
+(hyperref)                removing `math shift' on input line 204.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 201.
+(hyperref)                removing `subscript' on input line 204.
 
 
 
 [2{c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 209.
+(hyperref)                removing `math shift' on input line 212.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 209.
+(hyperref)                removing `subscript' on input line 212.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 215.
+(hyperref)                removing `math shift' on input line 218.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 215.
+(hyperref)                removing `subscript' on input line 218.
 
 
-Overfull \hbox (0.41371pt too wide) in paragraph at lines 231--233
+Overfull \hbox (0.41371pt too wide) in paragraph at lines 234--236
 \T1/lmr/m/n/10 group. Avail-able at https://www.mafmc.org/s/a_2023_BSB_UNIT_RTWG_Report_V2_12_2_2023-
  []
 
@@ -709,18 +709,18 @@ Overfull \hbox (0.41371pt too wide) in paragraph at lines 231--233
 [3]
 
 [4]
-<self_test_results.pdf, id=67, 867.24pt x 1156.32pt>
+<self_test_results.pdf, id=70, 867.24pt x 1156.32pt>
 File: self_test_results.pdf Graphic file (type pdf)
 <use self_test_results.pdf>
-Package pdftex.def Info: self_test_results.pdf  used on input line 300.
+Package pdftex.def Info: self_test_results.pdf  used on input line 303.
 (pdftex.def)             Requested size: 469.75827pt x 626.34435pt.
 
-LaTeX Warning: Float too large for page by 35.91434pt on input line 305.
+LaTeX Warning: Float too large for page by 35.91434pt on input line 308.
 
-<best_R_Ecov.pdf, id=68, 1011.78pt x 867.24pt>
+<best_R_Ecov.pdf, id=71, 1011.78pt x 867.24pt>
 File: best_R_Ecov.pdf Graphic file (type pdf)
 <use best_R_Ecov.pdf>
-Package pdftex.def Info: best_R_Ecov.pdf  used on input line 309.
+Package pdftex.def Info: best_R_Ecov.pdf  used on input line 312.
 (pdftex.def)             Requested size: 469.76266pt x 402.65372pt.
 
 
@@ -729,10 +729,10 @@ Package pdftex.def Info: best_R_Ecov.pdf  used on input line 309.
 [6 <./self_test_results.pdf>]
 
 [7 <./best_R_Ecov.pdf>]
-<BTA_full_fig.pdf, id=108, 1445.4pt x 722.7pt>
+<BTA_full_fig.pdf, id=111, 1445.4pt x 722.7pt>
 File: BTA_full_fig.pdf Graphic file (type pdf)
 <use BTA_full_fig.pdf>
-Package pdftex.def Info: BTA_full_fig.pdf  used on input line 319.
+Package pdftex.def Info: BTA_full_fig.pdf  used on input line 322.
 (pdftex.def)             Requested size: 650.424pt x 325.21199pt.
 
 
@@ -741,15 +741,15 @@ Package pdftex.def Info: BTA_full_fig.pdf  used on input line 319.
 
 
  <./BTA_full_fig.pdf>]
-<Ecov_M1_rel_M0.pdf, id=122, 722.7pt x 722.7pt>
+<Ecov_M1_rel_M0.pdf, id=125, 722.7pt x 722.7pt>
 File: Ecov_M1_rel_M0.pdf Graphic file (type pdf)
 <use Ecov_M1_rel_M0.pdf>
-Package pdftex.def Info: Ecov_M1_rel_M0.pdf  used on input line 330.
+Package pdftex.def Info: Ecov_M1_rel_M0.pdf  used on input line 333.
 (pdftex.def)             Requested size: 469.76045pt x 469.76045pt.
-<selectivity_south_plot.pdf, id=123, 1156.32pt x 867.24pt>
+<selectivity_south_plot.pdf, id=126, 1156.32pt x 867.24pt>
 File: selectivity_south_plot.pdf Graphic file (type pdf)
 <use selectivity_south_plot.pdf>
-Package pdftex.def Info: selectivity_south_plot.pdf  used on input line 339.
+Package pdftex.def Info: selectivity_south_plot.pdf  used on input line 342.
 (pdftex.def)             Requested size: 469.75385pt x 352.31538pt.
 
 
@@ -758,33 +758,33 @@ Package pdftex.def Info: selectivity_south_plot.pdf  used on input line 339.
  <./Ecov_M1_rel_M0.pdf>]
 
 [10 <./selectivity_south_plot.pdf>]
-<SSB_F_sensitivity_plots.pdf, id=159, 1445.4pt x 963.6pt>
+<SSB_F_sensitivity_plots.pdf, id=162, 1445.4pt x 963.6pt>
 File: SSB_F_sensitivity_plots.pdf Graphic file (type pdf)
 <use SSB_F_sensitivity_plots.pdf>
-Package pdftex.def Info: SSB_F_sensitivity_plots.pdf  used on input line 350.
+Package pdftex.def Info: SSB_F_sensitivity_plots.pdf  used on input line 353.
 (pdftex.def)             Requested size: 650.424pt x 433.616pt.
 
 
 [11 <./SSB_F_sensitivity_plots.pdf>]
-<proj_SSB40_CV.pdf, id=185, 1445.4pt x 1445.4pt>
+<proj_SSB40_CV.pdf, id=188, 1445.4pt x 1445.4pt>
 File: proj_SSB40_CV.pdf Graphic file (type pdf)
 <use proj_SSB40_CV.pdf>
-Package pdftex.def Info: proj_SSB40_CV.pdf  used on input line 360.
+Package pdftex.def Info: proj_SSB40_CV.pdf  used on input line 363.
 (pdftex.def)             Requested size: 469.74944pt x 469.74944pt.
-<proj_SSB_status_CV.pdf, id=186, 1445.4pt x 1445.4pt>
+<proj_SSB_status_CV.pdf, id=189, 1445.4pt x 1445.4pt>
 File: proj_SSB_status_CV.pdf Graphic file (type pdf)
 <use proj_SSB_status_CV.pdf>
-Package pdftex.def Info: proj_SSB_status_CV.pdf  used on input line 368.
+Package pdftex.def Info: proj_SSB_status_CV.pdf  used on input line 371.
 (pdftex.def)             Requested size: 469.74944pt x 469.74944pt.
-<proj_F40_CV.pdf, id=187, 1445.4pt x 1445.4pt>
+<proj_F40_CV.pdf, id=190, 1445.4pt x 1445.4pt>
 File: proj_F40_CV.pdf Graphic file (type pdf)
 <use proj_F40_CV.pdf>
-Package pdftex.def Info: proj_F40_CV.pdf  used on input line 377.
+Package pdftex.def Info: proj_F40_CV.pdf  used on input line 380.
 (pdftex.def)             Requested size: 469.74944pt x 469.74944pt.
-<proj_F_status_CV.pdf, id=188, 1445.4pt x 1445.4pt>
+<proj_F_status_CV.pdf, id=191, 1445.4pt x 1445.4pt>
 File: proj_F_status_CV.pdf Graphic file (type pdf)
 <use proj_F_status_CV.pdf>
-Package pdftex.def Info: proj_F_status_CV.pdf  used on input line 386.
+Package pdftex.def Info: proj_F_status_CV.pdf  used on input line 389.
 (pdftex.def)             Requested size: 469.74944pt x 469.74944pt.
 
 
@@ -795,18 +795,18 @@ Package pdftex.def Info: proj_F_status_CV.pdf  used on input line 386.
 [14 <./proj_F40_CV.pdf>]
 
 [15 <./proj_F_status_CV.pdf>]
-<R_SSB_F_cv_results.pdf, id=255, 1445.4pt x 1084.05pt>
+<R_SSB_F_cv_results.pdf, id=258, 1445.4pt x 1084.05pt>
 File: R_SSB_F_cv_results.pdf Graphic file (type pdf)
 <use R_SSB_F_cv_results.pdf>
-Package pdftex.def Info: R_SSB_F_cv_results.pdf  used on input line 397.
+Package pdftex.def Info: R_SSB_F_cv_results.pdf  used on input line 400.
 (pdftex.def)             Requested size: 563.70374pt x 422.7778pt.
 
 
 [16 <./R_SSB_F_cv_results.pdf>]
-<fit_0_jitter_plt.pdf, id=275, 505.89pt x 505.89pt>
+<fit_0_jitter_plt.pdf, id=278, 505.89pt x 505.89pt>
 File: fit_0_jitter_plt.pdf Graphic file (type pdf)
 <use fit_0_jitter_plt.pdf>
-Package pdftex.def Info: fit_0_jitter_plt.pdf  used on input line 409.
+Package pdftex.def Info: fit_0_jitter_plt.pdf  used on input line 412.
 (pdftex.def)             Requested size: 469.76265pt x 469.76265pt.
 
 
@@ -816,28 +816,28 @@ Package pdftex.def Info: fit_0_jitter_plt.pdf  used on input line 409.
 
 
  <./fit_0_jitter_plt.pdf>]
-<fit_1_jitter_plt.pdf, id=294, 505.89pt x 505.89pt>
+<fit_1_jitter_plt.pdf, id=297, 505.89pt x 505.89pt>
 File: fit_1_jitter_plt.pdf Graphic file (type pdf)
 <use fit_1_jitter_plt.pdf>
-Package pdftex.def Info: fit_1_jitter_plt.pdf  used on input line 419.
+Package pdftex.def Info: fit_1_jitter_plt.pdf  used on input line 422.
 (pdftex.def)             Requested size: 469.76265pt x 469.76265pt.
 
 
 [18 <./fit_1_jitter_plt.pdf>]
-<SSB_F_R_rel_M1.pdf, id=308, 867.24pt x 1156.32pt>
+<SSB_F_R_rel_M1.pdf, id=311, 867.24pt x 1156.32pt>
 File: SSB_F_R_rel_M1.pdf Graphic file (type pdf)
 <use SSB_F_R_rel_M1.pdf>
-Package pdftex.def Info: SSB_F_R_rel_M1.pdf  used on input line 429.
+Package pdftex.def Info: SSB_F_R_rel_M1.pdf  used on input line 432.
 (pdftex.def)             Requested size: 463.41966pt x 617.89287pt.
-<proj_F_status_results.pdf, id=309, 1445.4pt x 1445.4pt>
+<proj_F_status_results.pdf, id=312, 1445.4pt x 1445.4pt>
 File: proj_F_status_results.pdf Graphic file (type pdf)
 <use proj_F_status_results.pdf>
-Package pdftex.def Info: proj_F_status_results.pdf  used on input line 438.
+Package pdftex.def Info: proj_F_status_results.pdf  used on input line 441.
 (pdftex.def)             Requested size: 469.74944pt x 469.74944pt.
-<proj_SSB_status_results.pdf, id=310, 1445.4pt x 1445.4pt>
+<proj_SSB_status_results.pdf, id=313, 1445.4pt x 1445.4pt>
 File: proj_SSB_status_results.pdf Graphic file (type pdf)
 <use proj_SSB_status_results.pdf>
-Package pdftex.def Info: proj_SSB_status_results.pdf  used on input line 446.
+Package pdftex.def Info: proj_SSB_status_results.pdf  used on input line 449.
 (pdftex.def)             Requested size: 469.74944pt x 469.74944pt.
 
 
@@ -845,7 +845,7 @@ Package pdftex.def Info: proj_SSB_status_results.pdf  used on input line 446.
 
 [20 <./proj_F_status_results.pdf>]
 
-[21 <./proj_SSB_status_results.pdf>] (./supp_final.aux)
+[21 <./proj_SSB_status_results.pdf>] (./supp_accepted.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-06-09>
@@ -853,17 +853,17 @@ L3 programming layer <2025-06-09>
  ) 
 Here is how much of TeX's memory you used:
  15708 strings out of 469868
- 255682 string characters out of 5481739
- 666266 words of memory out of 5000000
+ 255718 string characters out of 5481739
+ 666272 words of memory out of 5000000
  43658 multiletter control sequences out of 15000+600000
  702760 words of font info for 105 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 89i,11n,93p,769b,487s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 89i,11n,93p,772b,487s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/euler/eurm10.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi5.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi7.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmib10.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy5.pfb><c:/Users/timothy.j.miller/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy7.pfb>
-Output written on supp_final.pdf (21 pages, 921252 bytes).
+Output written on supp_accepted.pdf (21 pages, 921421 bytes).
 PDF statistics:
- 492 PDF objects out of 1000 (max. 8388607)
- 355 compressed objects within 4 object streams
+ 495 PDF objects out of 1000 (max. 8388607)
+ 358 compressed objects within 4 object streams
  58 named destinations out of 1000 (max. 500000)
  137 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -93,6 +93,8 @@
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 \usepackage{url}
 \usepackage{setspace}
+%\singlespacing
+%\onehalfspacing
 %\doublespacing
 \usepackage{lineno}
 %\linenumbers
@@ -116,7 +118,8 @@
 \usepackage{xspace}
 \usepackage{textcomp}
 \usepackage{upgreek}
-
+% \usepackage{xr}
+% \externaldocument{supp_final}
 \newcommand{\blandscape}{\begin{landscape}}
 \newcommand{\elandscape}{\end{landscape}}
 \newcommand{\noop}[1]{}
@@ -157,7 +160,7 @@
 \subsection*{Deriving the prior distribution for movement parameters}\label{deriving-the-prior-distribution-for-movement-parameters}}
 \addcontentsline{toc}{subsection}{Deriving the prior distribution for movement parameters}
 
-The Working Group fit a Stock Synthesis model (Methot and Wetzel 2013) that included tagging data with 2 seasons (6 months each) and 2 regions where a proportion \(\mu^*_1\) of the northern component moves to the south in one season and some proportion \(\mu^*_{2\rightarrow 1}\) move back to the south in the second season (NEFSC 2023). The seasonal movement matrices for each season are
+The Working Group fit a Stock Synthesis model (\protect\hyperlink{ref-methotwetzel13}{Methot and Wetzel 2013}) that included tagging data with 2 seasons (6 months each) and 2 regions where a proportion \(\mu^*_1\) of the northern component moves to the south in one season and some proportion \(\mu^*_{2\rightarrow 1}\) move back to the south in the second season (\protect\hyperlink{ref-nefsc23}{NEFSC 2023}). The seasonal movement matrices for each season are
 \begin{equation*}
 \boldsymbol{\mu}^*_{1} = 
   \begin{bmatrix}
@@ -190,7 +193,7 @@ We simulated 1000 values from a normal distribution with mean and standard devia
 \subsection*{Bottom temperature anomalies}\label{bottom-temperature-anomalies}}
 \addcontentsline{toc}{subsection}{Bottom temperature anomalies}
 
-The Working Group created bottom temperature observations from a high resolution ocean bottom temperature product by du Pontavice et al. (2023). The annual observations for each region are defined by the average over all spatial bottom temperature values for February and March by region and year. Similarly, the Working Group calculated standard errors from the standard deviation of all values in the region and the total number of values for a given year. We created regional bottom temperature anomalies by subtracting means for each region across all years.
+The Working Group created bottom temperature observations from a high resolution ocean bottom temperature product by du Pontavice et al. (\protect\hyperlink{ref-dupontaviceetal23}{2023}). The annual observations for each region are defined by the average over all spatial bottom temperature values for February and March by region and year. Similarly, the Working Group calculated standard errors from the standard deviation of all values in the region and the total number of values for a given year. We created regional bottom temperature anomalies by subtracting means for each region across all years.
 
 \hypertarget{diagnostics}{%
 \subsection*{Diagnostics}\label{diagnostics}}
